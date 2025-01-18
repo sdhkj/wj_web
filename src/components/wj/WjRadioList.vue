@@ -1,0 +1,38 @@
+<template>
+    <div class="answerOptions">
+        <el-radio-group v-model="localdata.correctAnswer[0]" :disabled="localdata.disabled">
+        <ul style="padding: 0 15px;">
+            <li  v-for="(answerItem, index) in localdata.answerOptions" :key="answerItem.id">
+                <el-radio :label="answerItem.id" size="large" >
+                    {{ answerItem.answerDesc }}
+                    <span v-if="answerItem.id ==  localdata.correctAnswer[0] && localdata.disabled" style="margin-left: 20px;color: limegreen">（正确答案）</span>
+                </el-radio>
+            </li>
+        </ul>
+        </el-radio-group>
+    </div>
+</template>
+
+<script setup>
+import { toRefs } from 'vue'
+const props = defineProps(['localdata'])
+const { localdata } = toRefs(props)
+</script>
+
+<style lang='scss' scoped>
+.answerOptions{
+    .el-radio-group{
+        --el-text-color-placeholder: #606266;
+    }
+
+    :deep(.el-radio__input.is-disabled.is-checked .el-radio__inner::after){
+        background-color: white;
+        
+    }
+    :deep(.el-radio__input.is-disabled.is-checked .el-radio__inner){
+        border-color: #409eff;
+        background-color:#409eff;
+    }
+}
+
+</style>
