@@ -44,7 +44,25 @@ export default{
             method: "get",
             url: `/user/token`
         });
-    }
+    },
 
+    updatePassword(userId,password,newPassword){
+        return request({
+            url: `/user/password`,
+            method: 'put',
+            data:{
+                userId,password,newPassword
+            }
+        })
+    },
+    updateAvatar(userId,filename){
+        return request({
+            method: "put",
+            url: `/user/avatar`,
+            data: {
+                userId,filename
+            }
+        });
+    }
 
 }

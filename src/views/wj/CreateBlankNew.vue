@@ -6,7 +6,11 @@
         <div class="method">
             <div class="blank">
                 <div style="color: #262626;font-size: 18px; font-weight: bolder;">从空白创建</div>
-                <el-input style="height: 40px;" v-model="wj.title" placeholder="请输入标题"></el-input>
+              <el-form ref="surveyFormRef" :model="surveyForm" :rules="rules">
+                <el-form-item prop="title">
+                  <el-input style="height: 40px;width: 400px;" v-model="surveyForm.title" placeholder="请输入标题"></el-input>
+                </el-form-item>
+              </el-form>
                 <el-button @click="createWj" style="height: 40px;" type="primary">立即创建</el-button>
             </div>
             <div class="text">
@@ -39,17 +43,36 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref,toRefs } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 const router = useRouter();
 const route = useRoute();
+import { useUserStore } from "@/stores/user";
+const userStore = useUserStore();
+const { user } = toRefs(userStore);
 
+import surveyApi from '@/api/surveyApi';
 const wj = ref({})
-const createWj = () => {
+const createWj = async () => {
+  let valid= await surveyFormRef.value.validate(() => {});
+  if(valid){
+    surveyForm.value.userId = user.value.id;
+    await surveyApi.addSurvey(surveyForm.value)
     router.push({
-        path: '/wj/design'
+      path: '/wj/design'
     })
+  }
+
 }
+
+const surveyForm = ref({})
+const surveyFormRef = ref()
+const rules = ref({
+  title: [
+    {required: true, message: '请输入问卷标题', trigger: 'blur'},
+  ],
+
+})
 
 </script>
 

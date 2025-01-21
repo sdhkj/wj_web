@@ -40,7 +40,7 @@
 
 
                     <div class="userinfo">
-                        <el-image src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"></el-image>
+                        <el-image :src="user.avatarUrl"></el-image>
                         <div style="display: flex;align-items: center;">
                             <el-dropdown trigger="click">
                                 <span

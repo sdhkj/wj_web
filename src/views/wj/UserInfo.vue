@@ -3,6 +3,19 @@
         <div>
             <span class="title">注册信息</span>
             <div class="info">
+              <el-row class="row" style="height: 120px;" >
+                <el-col :span="5" class="label">头像</el-col>
+                <el-col :span="19" class="value">
+                  <el-upload
+                      :action="uploadAction"
+                      :show-file-list="false"
+                      :on-success="handleAvatarSuccess"
+                      :headers="uploadHeaders"
+                  >
+                    <img  :src="user.avatarUrl" style="height: 100px;width: 100px; border-radius: 10px" />
+                  </el-upload>
+                </el-col>
+              </el-row>
                 <el-row class="row">
                     <el-col :span="5" class="label">用户名</el-col>
                     <el-col :span="19" class="value">
@@ -72,7 +85,7 @@
                 <el-row class="row">
                     <el-col :span="5" class="label">密码</el-col>
                     <el-col :span="19" class="value else">
-                        <el-link :underline="false" style="text-decoration: underline;color: #0095ff;">修改密码</el-link>
+                        <el-link @click="openPasswordWindow" :underline="false" style="text-decoration: underline;color: #0095ff;">修改密码</el-link>
                     </el-col>
                 </el-row>
             </div>
@@ -103,7 +116,7 @@
 
     </div>
 
-  <el-dialog v-model="dialogFormVisibleNickname" title="修改昵称" width="600">
+  <el-dialog v-model="dialogFormVisibleNickname" title="修改昵称" :close-on-click-modal="false" width="600">
     <el-form :model="nicknameForm" :rules="nicknameFormRules" ref="nicknameFormRef">
       <el-form-item label="新昵称" :label-width="formLabelWidth" prop="nickname">
         <el-input v-model="nicknameForm.nickname" style="width: 80%;" autocomplete="off" />
@@ -119,11 +132,34 @@
     </template>
   </el-dialog>
 
+  <el-dialog v-model="dialogFormVisiblePassword" @close="clearPasswordForm" title="修改密码" :close-on-click-modal="false" width="600">
+    <el-form :model="passwordForm" :rules="passwordFormRules" ref="passwordFormRef">
+      <el-form-item label="原密码" :label-width="formLabelWidth" prop="password">
+        <el-input type="password" v-model="passwordForm.password" style="width: 85%;" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="新密码" :label-width="formLabelWidth" prop="newPassword">
+        <el-input type="password" v-model="passwordForm.newPassword" style="width: 85%;" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="确认密码" :label-width="formLabelWidth" prop="newPassword2">
+        <el-input type="password" v-model="passwordForm.newPassword2" style="width: 85%;" autocomplete="off" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogFormVisiblePassword = false">取消</el-button>
+        <el-button type="primary" @click="updatePassword">
+          确定
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
 import { ref,toRefs} from 'vue'
 import { useUserStore } from '@/stores/user.js'
+import { useRouter, useRoute } from 'vue-router'
+const router = useRouter()
 const userStore = useUserStore();
 // 响应式处理，用户数据从pinia中获取
 const {user} = toRefs(userStore)
@@ -139,10 +175,17 @@ const {user} = toRefs(userStore)
 // })
 
 const dialogFormVisibleNickname = ref(false)
+const dialogFormVisiblePassword = ref(false)
+
 const formLabelWidth = '110px'
 const nicknameForm = ref({})
+const passwordForm = ref({})
+
 const openNicknameWindow = () => {
   dialogFormVisibleNickname.value = true;
+}
+const openPasswordWindow = () => {
+  dialogFormVisiblePassword.value = true;
 }
 
 const nicknameFormRules = ref({
@@ -150,6 +193,31 @@ const nicknameFormRules = ref({
     {required: true, message: '请输入新昵称', trigger: 'blur'},
   ]
 })
+
+const checkNewPassword2 = (rule, value, callback) => {
+  if (value !== passwordForm.value.newPassword) {
+    callback(new Error('两次输入密码不一致'));
+  } else {
+    callback();
+  }
+}
+
+const passwordFormRules = ref({
+  password: [
+    { required: true, message: '请输入原密码', trigger: 'blur' },
+    { min: 6, max: 20, message: "密码长度必须6~20位", trigger: 'blur'}
+  ],
+  newPassword: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { min: 6, max: 20, message: "密码长度必须6~20位", trigger: 'blur'}
+  ],
+  newPassword2: [
+    { required: true, message: '请输入确认密码', trigger: 'blur' },
+    { min: 6, max: 20, message: "密码长度必须6~20位", trigger: 'blur'},
+    { validator: checkNewPassword2, trigger: 'blur' }
+  ]
+})
+
 
 import { ElMessage } from 'element-plus'
 const nicknameFormRef = ref();
@@ -166,6 +234,48 @@ const updateNickname = async() => {
     userStore.refreshToken()
   }
 }
+
+// 监听对话框关闭时清空表单数据和验证结果
+const clearPasswordForm = () => {
+  passwordForm.value = {}
+  passwordFormRef.value.clearValidate()
+}
+
+const passwordFormRef = ref();
+const updatePassword = async() => {
+  let valid = await passwordFormRef.value.validate(() => {});
+  if(valid){
+    await userApi.updatePassword(user.value.id,passwordForm.value.password,passwordForm.value.newPassword)
+    ElMessage({
+      message: '密码修改成功，请重新登录',
+      type: 'success',
+    })
+    setTimeout(() => {
+      userStore.logout().then(res => {
+        router.replace({
+          path: '/login'
+        })
+      });
+    }, 2000);
+  }
+}
+
+const uploadHeaders = {
+  "Authorization": userStore.token
+}
+//const imageUrl = ref("/src/assets/images/avatar.gif")
+const uploadAction = import.meta.env.VITE_APP_BASE_API + "/file/upload";
+const handleAvatarSuccess = async(response) => {
+  // 更新用户表头像值
+  await userApi.updateAvatar(user.value.id, response.data.fileName)
+  // 刷新token
+  userStore.refreshToken()
+  ElMessage({
+    message: '更新头像成功',
+    type: 'success',
+  })
+}
+
 </script>
 
 <style lang='scss' scoped>
@@ -184,7 +294,7 @@ const updateNickname = async() => {
     }
 
     .info {
-        height: 320px;
+        //height: 320px;
         width: 496px;
         background-color: white;
         box-shadow: 0px 0px 1px lightgrey;
