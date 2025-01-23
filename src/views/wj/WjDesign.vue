@@ -65,7 +65,7 @@
                         <span>考生信息</span>
                     </div>
                     <div class="list" v-if="stuInfoVisible">
-                        <div class="item" v-for="(item, index) in stuInfo" :key="item.id">
+                        <div class="item" @click="addExamineeInfo(item.label)" v-for="(item, index) in stuInfo" :key="item.id">
                             <component :is="item.icon" class="icon">
                             </component>
                             <span>{{ item.label }}</span>
@@ -91,24 +91,23 @@
 
             <el-scrollbar class="content" :style="{ height: 'calc(100vh - 50px)' }">
                 <div class="padding40">
-                    <el-input class="title" v-model="wjForm.title" placeholder="请输入问卷标题" />
+                    <el-input class="title" v-model="wjForm.title" placeholder="请输入问卷标题" @blur="updateSurvey"/>
                 </div>
                 <div class="padding40">
-                    <el-input class="desc" v-model="wjForm.desc" type="textarea" :rows="1" autosize
-                        placeholder="添加问卷说明"></el-input>
+                    <el-input class="desc" v-model="wjForm.description" type="textarea" :rows="1" autosize
+                        placeholder="添加问卷说明" @blur="updateSurvey"></el-input>
                 </div>
-                <div v-if="questionList1.length == 0"><el-empty description="您还没有考生信息哦" /></div>
+                <div v-if="examineeList.length == 0"><el-empty description="您还没有考生信息哦" /></div>
                 <div style="border-bottom: 1px solid #e8e8e8;margin-top: 20px;"></div>
-                <div class="card" v-for="(item, index) in questionList1" :key="item.id">
-                    <div class="question">{{ item.questionDesc }}：</div>
+                <div class="card" v-for="(item, index) in examineeList" :key="item.id">
+                    <div class="question">{{ item.content }}：</div>
                     <div class="answerList">
-                        <el-input readonly style="width: 398px;height: 38px;" :placeholder="item.placeholder"
-                            :prefix-icon="item.prefixIcon"></el-input>
+                        <el-input readonly style="width: 398px;height: 38px;" ></el-input>
                     </div>
                     <div class="card-opr">
                         <div><el-link type="primary">在此后插入新题</el-link></div>
                         <div>
-                            <el-button size="small" type="danger" icon="Delete">删除</el-button>
+                            <el-button size="small" type="danger" icon="Delete" @click="deleteExaminee(item.id)">删除</el-button>
                             <el-button size="small" icon="Top">上移</el-button>
                             <el-button size="small" icon="Bottom">下移</el-button>
                         </div>
@@ -179,10 +178,82 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElNotification } from 'element-plus'
+import {ElMessage, ElMessageBox, ElNotification} from 'element-plus'
 
 const router = useRouter();
 const route = useRoute();
+
+const wjForm = ref({})
+let surveyId = route.query.surveyId;
+import surveyApi from '@/api/surveyApi';
+const getSurveyById = async() => {
+  let res = await surveyApi.getSurveyById(surveyId)
+  wjForm.value = res.data;
+  console.log('----> wjForm: ' , wjForm);
+  getExamineeList();
+}
+getSurveyById()
+// 修改问卷主表
+const updateSurvey = async() => {
+  let res = await surveyApi.updateSurvey(wjForm.value);
+  ElMessage({
+    message: '更新成功',
+    type: 'success',
+  })
+}
+
+// 新增考生信息
+const addExamineeInfo= async (content) => {
+  let question = {
+    surveyId: wjForm.value.id,
+    questionType: 0,   // 考生信息
+    content: content,
+    orderNum: 0
+  }
+  let res = await surveyApi.addSurveyQuestion(question)
+  ElMessage({
+    message: '添加考生信息成功',
+    type: 'success',
+  })
+  getExamineeList();
+
+}
+
+// 考生信息列表
+const examineeList = ref([])
+const getExamineeList = async () => {
+  let res = await surveyApi.getExamineeList(wjForm.value.id);
+  examineeList.value = res.data;
+}
+
+// 删除考生信息
+const deleteExaminee =  (questionId) => {
+  ElMessageBox.confirm(
+      '确认删除该考生信息项吗？',
+      '删除确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then( async () => {
+        let res = await surveyApi.deleteSurveyQuestion(questionId);
+        getExamineeList();
+        ElMessage({
+          message: '删除成功',
+          type: 'success',
+        })
+      })
+      .catch(() => {
+
+      })
+
+}
+
+
+
+
 
 const addQuestion = () => {
     console.log(questionForm.value);
@@ -238,14 +309,14 @@ const saveWj = () => {
 
 
 
-const questionList1 = ref([
-    {
-        id: 0, questionDesc: "您的姓名", placeholder: "姓名", questionType: 4, questionTypeDesc: '填空', orderNum: 0
-    },
-    {
-        id: 0, questionDesc: "您的部门", placeholder: "部门", questionType: 4, questionTypeDesc: '填空', orderNum: 1
-    },
-])
+// const questionList1 = ref([
+//     {
+//         id: 0, questionDesc: "您的姓名", placeholder: "姓名", questionType: 4, questionTypeDesc: '填空', orderNum: 0
+//     },
+//     {
+//         id: 0, questionDesc: "您的部门", placeholder: "部门", questionType: 4, questionTypeDesc: '填空', orderNum: 1
+//     },
+// ])
 
 const questionList2 = ref([
     {
@@ -278,7 +349,7 @@ const questionList2 = ref([
 ])
 
 
-const wjForm = ref({})
+
 
 const stuInfoVisible = ref(true)
 const stuInfoIcon = ref('CaretBottom')

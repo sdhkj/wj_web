@@ -57,9 +57,12 @@ const createWj = async () => {
   let valid= await surveyFormRef.value.validate(() => {});
   if(valid){
     surveyForm.value.userId = user.value.id;
-    await surveyApi.addSurvey(surveyForm.value)
+    let res = await surveyApi.addSurvey(surveyForm.value)
     router.push({
-      path: '/wj/design'
+      path: '/wj/design',
+      query: {
+        surveyId: res.data.id
+      }
     })
   }
 
