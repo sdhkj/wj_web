@@ -42,4 +42,15 @@ export default{
             url: `/survey/question/${id}`
         });
     },
+
+    // 考生信息列表调序
+    updateSurveyQuestionOrder(surveyId,questionId,questionType,oldOrder,newOrder){
+        return request({
+            method: "put",
+            url: `/survey/question/order`,
+            params: {
+                surveyId,questionId,questionType,oldOrder,newOrder
+            }
+        });
+    },
 }

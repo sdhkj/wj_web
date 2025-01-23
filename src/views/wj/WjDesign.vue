@@ -107,9 +107,11 @@
                     <div class="card-opr">
                         <div><el-link type="primary">在此后插入新题</el-link></div>
                         <div>
-                            <el-button size="small" type="danger" icon="Delete" @click="deleteExaminee(item.id)">删除</el-button>
-                            <el-button size="small" icon="Top">上移</el-button>
-                            <el-button size="small" icon="Bottom">下移</el-button>
+                          <el-button size="small" type="danger" icon="Delete" @click="deleteExaminee(item.id)" >删除</el-button>
+                          <el-button size="small" icon="Top" @click="updateExamineeOrder(item.surveyId,item.id,item.questionType,item.orderNum, item.orderNum-1)">上移</el-button>
+                          <el-button size="small" icon="Bottom" @click="updateExamineeOrder(item.surveyId,item.id,item.questionType,item.orderNum, item.orderNum+1)">下移</el-button>
+                          <el-button size="small" icon="Upload" @click="updateExamineeOrder(item.surveyId,item.id,item.questionType,item.orderNum, 0)">最前</el-button>
+                          <el-button size="small" icon="Download" @click="updateExamineeOrder(item.surveyId,item.id,item.questionType,item.orderNum, examineeList.length-1)">最后</el-button>
                         </div>
                     </div>
                 </div>
@@ -208,7 +210,7 @@ const addExamineeInfo= async (content) => {
     surveyId: wjForm.value.id,
     questionType: 0,   // 考生信息
     content: content,
-    orderNum: 0
+    orderNum: examineeList.value.length
   }
   let res = await surveyApi.addSurveyQuestion(question)
   ElMessage({
@@ -248,8 +250,18 @@ const deleteExaminee =  (questionId) => {
       .catch(() => {
 
       })
-
 }
+
+// 调整顺序
+const updateExamineeOrder = async (surveyId,questionId,questionType,oldOrder,newOrder) => {
+  if((oldOrder==0 && newOrder==-1) || (oldOrder == examineeList.value.length-1 && newOrder == examineeList.value.length)){
+    return ;
+  }
+  let res = await surveyApi.updateSurveyQuestionOrder(surveyId,questionId,questionType,oldOrder,newOrder)
+  getExamineeList();
+}
+
+
 
 
 
