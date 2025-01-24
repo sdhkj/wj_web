@@ -78,7 +78,7 @@
                         <span>考试题型</span>
                     </div>
                     <div class="list" v-if="questionInfoVisible">
-                        <div @click="openQuestionDrawer(item.questionEditorType,item.label)" class="item"
+                        <div @click="openQuestionDrawer(item.questionEditorType,item.label,item.questionType)" class="item"
                             v-for="(item, index) in questionInfo" :key="item.id">
                             <component :is="item.icon" class="icon">
                             </component>
@@ -107,7 +107,7 @@
                     <div class="card-opr">
                         <div><el-link type="primary">在此后插入新题</el-link></div>
                         <div>
-                          <el-button size="small" type="danger" icon="Delete" @click="deleteExaminee(item.id)" >删除</el-button>
+                          <el-button size="small" type="danger" icon="Delete" @click="deleteExaminee(item.surveyId,item.id,item.questionType,item.orderNum, examineeList.length-1)" >删除</el-button>
                           <el-button size="small" icon="Top" @click="updateExamineeOrder(item.surveyId,item.id,item.questionType,item.orderNum, item.orderNum-1)">上移</el-button>
                           <el-button size="small" icon="Bottom" @click="updateExamineeOrder(item.surveyId,item.id,item.questionType,item.orderNum, item.orderNum+1)">下移</el-button>
                           <el-button size="small" icon="Upload" @click="updateExamineeOrder(item.surveyId,item.id,item.questionType,item.orderNum, 0)">最前</el-button>
@@ -229,7 +229,7 @@ const getExamineeList = async () => {
 }
 
 // 删除考生信息
-const deleteExaminee =  (questionId) => {
+const deleteExaminee =  (surveyId,questionId,questionType,oldOrder,newOrder) => {
   ElMessageBox.confirm(
       '确认删除该考生信息项吗？',
       '删除确认',
@@ -246,6 +246,7 @@ const deleteExaminee =  (questionId) => {
           message: '删除成功',
           type: 'success',
         })
+        updateExamineeOrder(surveyId,questionId,questionType,oldOrder,newOrder)
       })
       .catch(() => {
 
@@ -262,6 +263,31 @@ const updateExamineeOrder = async (surveyId,questionId,questionType,oldOrder,new
 }
 
 
+const questionForm = ref({
+
+})
+
+// 打开试题编辑页面
+const openQuestionDrawer = async(questionEditorType,title, questionType) => {
+
+  if(questionType != null && questionType != undefined){
+
+    let question = {
+      surveyId: wjForm.value.id,
+      questionType: questionType,
+      content: '',
+      orderNum: examineeList.value.length
+    }
+    let res = await surveyApi.addSurveyQuestion(question)
+    questionForm.value = res.data;
+    questionForm.value.correctAnswer = [];
+  }
+
+  editorDrawer.value.visible = true;
+  editorDrawer.value.questionEditorType = questionEditorType;
+  editorDrawer.value.title = title;
+  console.log(title);
+}
 
 
 
@@ -297,22 +323,9 @@ const editorDrawer = ref({
     questionEditorType: "WjRadioEditor",
     title: ""
 })
-const openQuestionDrawer = (questionEditorType,title) => {
-    editorDrawer.value.visible = true;
-    editorDrawer.value.questionEditorType = questionEditorType;
-    editorDrawer.value.title = title;
-    console.log(title);
-}
 
-const questionForm = ref({
-    correctAnswer: [],
-    answerOptions: [
-        { id: "", answerDesc: "选项1", orderNum: 0 },
-        { id: "", answerDesc: "选项2" , orderNum: 1},
-        { id: "", answerDesc: "选项3" , orderNum: 2},
-        { id: "", answerDesc: "选项4", orderNum: 3},
-    ]
-})
+
+
 
 const saveWj = () => {
     router.push("/wj/manage")
@@ -380,9 +393,9 @@ const toggleQuestionInfoVisible = () => {
 
 
 const questionInfo = ref([
-    { id: 0, label: "考试单选", icon: "User", questionEditorType: "WjRadioEditor" },
+    { id: 0, label: "考试单选", icon: "User", questionType: 1,questionEditorType: "WjRadioEditor" },
     { id: 1, label: "考试判断", icon: "DataBoard" },
-    { id: 2, label: "考试多选", icon: "Phone", questionEditorType: "WjCheckboxEditor" },
+    { id: 2, label: "考试多选", icon: "Phone", questionType: 2,questionEditorType: "WjCheckboxEditor" },
     { id: 3, label: "代码题", icon: "Reading" },
     { id: 4, label: "单项填空", icon: "Check" },
     { id: 5, label: "多项填空", icon: "Finished" },

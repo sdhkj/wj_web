@@ -1,7 +1,7 @@
 <template>
     <div>
         <quill-editor theme="snow" :options="{ modules: { toolbar: false } }" v-model:content="localdata.questionDesc"
-            contentType="html" placeholder="标题">
+            contentType="html" placeholder="请输入试题描述">
         </quill-editor>
         <div>
             <el-radio-group v-model="localdata.correctAnswer[0]">
@@ -35,6 +35,7 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import { toRefs } from 'vue'
 const props = defineProps(['localdata'])
 const { localdata } = toRefs(props)
+// 当 WjRadioEditor.vue 组件被创建并挂载时，localdata 会从父组件传递过来
 
 /* const questionForm = ref({
     correctAnswer: [],
