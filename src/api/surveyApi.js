@@ -53,4 +53,24 @@ export default{
             }
         });
     },
+    // 更新问卷问题
+    updateSurveyQuestion(surveyQuestion){
+        if(Array.isArray(surveyQuestion.correctAnswer)){
+            surveyQuestion.correctAnswer = surveyQuestion.correctAnswer.join(",")
+        }
+        return request({
+            method: "put",
+            url: `/survey/question`,
+            data: surveyQuestion
+        });
+    },
+
+    // 更新单选选项
+    updateSurveyQuestionOption(surveyQuestionOption){
+        return request({
+            method: "put",
+            url: `/survey/question/option`,
+            data: surveyQuestionOption
+        });
+    },
 }

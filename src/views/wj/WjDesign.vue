@@ -267,6 +267,9 @@ const questionForm = ref({
 
 })
 
+
+
+const questionList = ref([])
 // 打开试题编辑页面
 const openQuestionDrawer = async(questionEditorType,title, questionType) => {
 
@@ -276,7 +279,7 @@ const openQuestionDrawer = async(questionEditorType,title, questionType) => {
       surveyId: wjForm.value.id,
       questionType: questionType,
       content: '',
-      orderNum: examineeList.value.length
+      orderNum: questionList.value.length
     }
     let res = await surveyApi.addSurveyQuestion(question)
     questionForm.value = res.data;

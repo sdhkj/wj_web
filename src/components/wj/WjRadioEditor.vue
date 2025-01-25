@@ -1,7 +1,7 @@
 <template>
     <div>
-        <quill-editor theme="snow" :options="{ modules: { toolbar: false } }" v-model:content="localdata.questionDesc"
-            contentType="html" placeholder="请输入试题描述">
+        <quill-editor theme="snow" :options="{ modules: { toolbar: false } }" v-model:content="localdata.content"
+            contentType="html" placeholder="请输入试题描述" @blur="updateSurveyQuestion">
         </quill-editor>
         <div>
             <el-radio-group v-model="localdata.correctAnswer[0]">
@@ -9,7 +9,7 @@
                     <li v-for="(answerItem, index) in localdata.answerOptions" :key="index">
                         <div class="left">
                             <div><el-radio :label="answerItem.answerDesc" size="large">&nbsp;</el-radio></div>
-                            <el-input type="textarea" placeholder="请完善该选项内容" :rows="1" autosize v-model="answerItem.answerDesc" class="input"></el-input>
+                            <el-input type="textarea" @blur="updateSurveyQuestionOption(index)" placeholder="请完善该选项内容" :rows="1" autosize v-model="answerItem.optionContent" class="input"></el-input>
                         </div>
 
                         <div class="right">
@@ -35,6 +35,28 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import { toRefs } from 'vue'
 const props = defineProps(['localdata'])
 const { localdata } = toRefs(props)
+
+
+import { ElMessage } from 'element-plus'
+import surveyApi from '@/api/surveyApi';
+const updateSurveyQuestion = async () => {
+  let res = await surveyApi.updateSurveyQuestion(localdata.value)
+  ElMessage({
+    message: '更新成功',
+    type: 'success',
+  })
+}
+
+const updateSurveyQuestionOption = async(index) => {
+  let option = localdata.value.answerOptions[index];
+  await surveyApi.updateSurveyQuestionOption(option);
+  ElMessage({
+    message: '更新成功',
+    type: 'success',
+  })
+}
+
+
 // 当 WjRadioEditor.vue 组件被创建并挂载时，localdata 会从父组件传递过来
 
 /* const questionForm = ref({
