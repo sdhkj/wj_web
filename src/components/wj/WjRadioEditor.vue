@@ -4,11 +4,11 @@
             contentType="html" placeholder="请输入试题描述" @blur="updateSurveyQuestion">
         </quill-editor>
         <div>
-            <el-radio-group v-model="localdata.correctAnswer[0]">
+            <el-radio-group v-model="localdata.correctAnswer" @change="updateSurveyQuestion">
                 <ul>
                     <li v-for="(answerItem, index) in localdata.answerOptions" :key="index">
                         <div class="left">
-                            <div><el-radio :label="answerItem.answerDesc" size="large">&nbsp;</el-radio></div>
+                            <div><el-radio :label="answerItem.id" size="large">&nbsp;</el-radio></div>
                             <el-input type="textarea" @blur="updateSurveyQuestionOption(index)" placeholder="请完善该选项内容" :rows="1" autosize v-model="answerItem.optionContent" class="input"></el-input>
                         </div>
 
@@ -17,7 +17,7 @@
                                 <el-button type="primary" icon="Plus" circle size="small" @click="addItem(index)" ></el-button>
                                 <el-button type="danger" icon="Minus" circle size="small" @click="deleteItem(index)"></el-button>
                             </div>
-                                <el-radio :label="answerItem.answerDesc" style="margin-left: 20px;"   border>正确答案</el-radio>
+                                <el-radio :label="answerItem.id" style="margin-left: 20px;"   border>正确答案</el-radio>
                         </div>
                     </li>
                 </ul>
@@ -37,7 +37,7 @@ const props = defineProps(['localdata'])
 const { localdata } = toRefs(props)
 
 
-import { ElMessage } from 'element-plus'
+import {ElMessage, ElMessageBox} from 'element-plus'
 import surveyApi from '@/api/surveyApi';
 const updateSurveyQuestion = async () => {
   let res = await surveyApi.updateSurveyQuestion(localdata.value)
@@ -53,6 +53,38 @@ const updateSurveyQuestionOption = async(index) => {
   ElMessage({
     message: '更新成功',
     type: 'success',
+  })
+}
+
+const addItem = async (index) => {
+  let option = localdata.value.answerOptions[index];
+  let newOption = {
+      questionId: option.questionId,
+      surveyId: option.surveyId,
+      orderNum: option.orderNum,
+  }
+  await surveyApi.addSurveyQuestionOption(newOption)
+  let res = await surveyApi.getSurveyQuestionOptionList(option.questionId)
+  localdata.value.answerOptions = res.data;
+}
+
+const deleteItem = (index) => {
+  let option = localdata.value.answerOptions[index];
+  ElMessageBox.confirm('确定删除该选项吗？', '删除确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
+     await surveyApi.deleteSurveyQuestionOption(option.id);
+     let res = await surveyApi.getSurveyQuestionOptionList(option.questionId)
+     localdata.value.answerOptions = res.data;
+    ElMessage({
+      message: '删除成功',
+      type: 'success',
+    })
+  })
+  .catch(() => {
+
   })
 }
 
@@ -72,12 +104,7 @@ const updateSurveyQuestionOption = async(index) => {
 
 
 
-const addItem = (index) => {
-    localdata.value.answerOptions.splice(index+1,0,{
-        index: 99,answerDesc: "", correctAnswer: 0
-    });
-    updateAnswerOptionsIndex()
-}
+
 
 const updateAnswerOptionsIndex = () => {
     localdata.value.answerOptions = localdata.value.answerOptions.map((item,index) => {
@@ -86,10 +113,7 @@ const updateAnswerOptionsIndex = () => {
     })
 }
 
-const deleteItem = (index) => {
-    localdata.value.answerOptions.splice(index,1)
-    updateAnswerOptionsIndex()
-}
+
 
 
 

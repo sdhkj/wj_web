@@ -73,4 +73,33 @@ export default{
             data: surveyQuestionOption
         });
     },
+
+    // 新增单选选项
+    addSurveyQuestionOption(surveyQuestionOption){
+        return request({
+            method: "post",
+            url: `/survey/question/option`,
+            data: surveyQuestionOption
+        });
+    },
+
+    // 查询单选选项
+    getSurveyQuestionOptionList(questionId){
+        return request({
+            method: "get",
+            url: `/survey/question/option`,
+            params: {
+                questionId
+            }
+        });
+    },
+    // 删除单选选项
+    deleteSurveyQuestionOption(optionId){
+        return request({
+            method: "delete",
+            url: `/survey/question/option/${optionId}`,
+
+        });
+    }
+
 }
