@@ -154,14 +154,30 @@
 
     <el-drawer v-model="editorDrawer.visible" :show-close="false" direction="rtl" :close-on-click-modal="false" :size="900">
         <template #header>
+          <div style="display: flex;align-items: center">
             <h4 style="font-size: 18px; font-weight: bolder;">{{ editorDrawer.title }}</h4>
+            <el-select
+                v-model="questionForm.score"
+                clearable
+                placeholder="分值"
+                style="width: 80px;margin-left: 20px"
+            >
+              <el-option
+                  v-for="item in scoreOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+              />
+            </el-select>
+          </div>
+
         </template>
         <component :is="editorDrawer.questionEditorType" :localdata="questionForm" v-if="editorDrawer.questionEditorType && editorDrawer.visible"></component>
         <div v-else>该题型暂未开放哦！</div>
         <template #footer>
             <div style="display: flex; justify-content: flex-end; ">
                 
-                <el-popconfirm @confirm="closeDrawer" width="220" confirm-button-text="确认" cancel-button-text="不了" icon="Warning" 
+                <el-popconfirm @confirm="closeQuestion" width="220" confirm-button-text="确认" cancel-button-text="不了" icon="Warning"
                     icon-color="#E6A23C" title="取消操作将会丢失表单数据，确认放弃？">
                     <template #reference>
                     <el-button icon="CloseBold" >
@@ -169,7 +185,7 @@
                     </el-button>
                 </template>
                 </el-popconfirm>
-                <el-button type="primary" icon="Select" @click="addQuestion">
+                <el-button type="primary" icon="Select" @click="saveQuestion">
                     确定
                 </el-button>
             </div>
@@ -262,6 +278,20 @@ const updateExamineeOrder = async (surveyId,questionId,questionType,oldOrder,new
   getExamineeList();
 }
 
+const scoreOptions = [
+  {value: 1, label: '1分'},
+  {value: 2, label: '2分'},
+  {value: 3, label: '3分'},
+  {value: 4, label: '4分'},
+  {value: 5, label: '5分'},
+  {value: 6, label: '6分'},
+  {value: 7, label: '7分'},
+  {value: 8, label: '8分'},
+  {value: 9, label: '9分'},
+  {value: 10, label: '10分'}
+]
+
+
 
 const questionForm = ref({
 
@@ -279,7 +309,8 @@ const openQuestionDrawer = async(questionEditorType,title, questionType) => {
       surveyId: wjForm.value.id,
       questionType: questionType,
       content: '',
-      orderNum: questionList.value.length
+      orderNum: questionList.value.length,
+      score: 5
     }
     let res = await surveyApi.addSurveyQuestion(question)
     questionForm.value = res.data;
@@ -292,11 +323,22 @@ const openQuestionDrawer = async(questionEditorType,title, questionType) => {
   console.log(title);
 }
 
+const saveQuestion = async() => {
+  await surveyApi.updateSurveyQuestion(questionForm.value)
+  editorDrawer.value.visible = false;
+  // todo, 查询试题列表
+
+}
+
+const closeQuestion = async() => {
+  // await surveyApi.updateSurveyQuestion(questionForm.value)  关闭不需要保存数据
+  editorDrawer.value.visible = false;
+  // todo, 查询试题列表
+}
 
 
 
-
-const addQuestion = () => {
+/*const addQuestion = () => {
     console.log(questionForm.value);
     let options = questionForm.value.answerOptions.map(v => {
         return v.answerDesc;
@@ -309,7 +351,7 @@ const addQuestion = () => {
         })
         return;
     }
-}
+}*/
 
 function checkDuplicates(array) {
   return new Set(array).size !== array.length;
