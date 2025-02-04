@@ -100,6 +100,13 @@ export default{
             url: `/survey/question/option/${optionId}`,
 
         });
-    }
+    },
+    // 查询试题列表单选题
+    getQuestionList(surveyId){
+        return request({
+            method: "get",
+            url: `/survey/question/${surveyId}`
+        });
+    },
 
 }

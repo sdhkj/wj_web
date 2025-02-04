@@ -1,11 +1,11 @@
 <template>
     <div class="answerOptions">
-        <el-radio-group v-model="localdata.correctAnswer[0]" :disabled="localdata.disabled">
+        <el-radio-group v-model="localdata.answer" :disabled="disabled">
         <ul style="padding: 0 15px;">
             <li  v-for="(answerItem, index) in localdata.answerOptions" :key="answerItem.id">
                 <el-radio :label="answerItem.id" size="large" >
-                    {{ answerItem.answerDesc }}
-                    <span v-if="answerItem.id ==  localdata.correctAnswer[0] && localdata.disabled" style="margin-left: 20px;color: limegreen">（正确答案）</span>
+                    {{ answerItem.optionContent }}
+                    <span v-if="answerItem.id ==  localdata.correctAnswer && disabled" style="margin-left: 20px;color: limegreen">（正确答案）</span>
                 </el-radio>
             </li>
         </ul>
@@ -15,8 +15,9 @@
 
 <script setup>
 import { toRefs } from 'vue'
-const props = defineProps(['localdata'])
-const { localdata } = toRefs(props)
+const props = defineProps(['localdata','disabled'])
+const { localdata ,disabled} = toRefs(props)
+localdata.value.answer = localdata.value.correctAnswer - 0
 </script>
 
 <style lang='scss' scoped>

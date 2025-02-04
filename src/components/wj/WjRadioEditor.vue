@@ -40,6 +40,7 @@ const { localdata } = toRefs(props)
 import {ElMessage, ElMessageBox} from 'element-plus'
 import surveyApi from '@/api/surveyApi';
 const updateSurveyQuestion = async () => {
+  localdata.value.content = localdata.value.content.replace(/<img/g, "<img style='max-width:100%;height:auto'");
   let res = await surveyApi.updateSurveyQuestion(localdata.value)
   ElMessage({
     message: '更新成功',

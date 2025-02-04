@@ -78,7 +78,7 @@
                         <span>考试题型</span>
                     </div>
                     <div class="list" v-if="questionInfoVisible">
-                        <div @click="openQuestionDrawer(item.questionEditorType,item.label,item.questionType)" class="item"
+                        <div @click="openQuestionDrawer(item.questionEditorType,item.label,item.questionType,item.questionTypeDesc,item.component)" class="item"
                             v-for="(item, index) in questionInfo" :key="item.id">
                             <component :is="item.icon" class="icon">
                             </component>
@@ -115,14 +115,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="card" v-for="(item, index) in questionList2" :key="item.id">
-                    <div class="question">
-                        <span>{{ index + 1 }}.</span>
-                        {{ item.questionDesc }}
-                        [ {{ item.questionTypeDesc }} ]
+                <div class="card" v-for="(item, index) in questionList" :key="item.id">
+                    <div class="question" >
+                      <div style="display: flex">
+                        <span>{{ index + 1 }}.&nbsp;</span>
+                        <div v-html="item.content"></div>
+                      </div>
+
+                        &nbsp;&nbsp;&nbsp;&nbsp;[ {{ item.questionTypeDesc }}&nbsp;{{item.score}}分 ]
                     </div>
                     <div class="answerList">
-                        <component :is="item.component" :localdata="item"
+                        <component :is="item.component" :localdata="item" :disabled="true"
                             style="width: 18px;padding: 0; margin-right: 10px; ">
                         </component>
                     </div>
@@ -139,7 +142,7 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="questionList2.length == 0"><el-empty description="您还没有添加试题哦" /></div>
+                <div v-if="questionList.length == 0"><el-empty description="您还没有添加试题哦" /></div>
                 <div style="line-height: 100px;text-align: center;">
                     <el-button size="large" icon="view">预览一下</el-button>
                     <el-button @click="saveWj" size="large" icon="Select" type="primary">完成编辑</el-button>
@@ -208,7 +211,10 @@ const getSurveyById = async() => {
   let res = await surveyApi.getSurveyById(surveyId)
   wjForm.value = res.data;
   console.log('----> wjForm: ' , wjForm);
+  // 考生信息
   getExamineeList();
+  // 试题信息
+  getQuestionList();
 }
 getSurveyById()
 // 修改问卷主表
@@ -243,6 +249,14 @@ const getExamineeList = async () => {
   let res = await surveyApi.getExamineeList(wjForm.value.id);
   examineeList.value = res.data;
 }
+
+// 试题信息列表
+const questionList = ref([])
+const getQuestionList = async () => {
+  let res = await surveyApi.getQuestionList(wjForm.value.id);
+  questionList.value = res.data;
+}
+
 
 // 删除考生信息
 const deleteExaminee =  (surveyId,questionId,questionType,oldOrder,newOrder) => {
@@ -299,9 +313,9 @@ const questionForm = ref({
 
 
 
-const questionList = ref([])
+
 // 打开试题编辑页面
-const openQuestionDrawer = async(questionEditorType,title, questionType) => {
+const openQuestionDrawer = async(questionEditorType,title, questionType,questionTypeDesc,component) => {
 
   if(questionType != null && questionType != undefined){
 
@@ -310,7 +324,9 @@ const openQuestionDrawer = async(questionEditorType,title, questionType) => {
       questionType: questionType,
       content: '',
       orderNum: questionList.value.length,
-      score: 5
+      score: 5,
+      questionTypeDesc: questionTypeDesc,
+      component: component
     }
     let res = await surveyApi.addSurveyQuestion(question)
     questionForm.value = res.data;
@@ -326,14 +342,16 @@ const openQuestionDrawer = async(questionEditorType,title, questionType) => {
 const saveQuestion = async() => {
   await surveyApi.updateSurveyQuestion(questionForm.value)
   editorDrawer.value.visible = false;
-  // todo, 查询试题列表
+  // 查询试题列表
+  getQuestionList();
 
 }
 
 const closeQuestion = async() => {
   // await surveyApi.updateSurveyQuestion(questionForm.value)  关闭不需要保存数据
   editorDrawer.value.visible = false;
-  // todo, 查询试题列表
+  // 查询试题列表
+  getQuestionList();
 }
 
 
@@ -438,9 +456,9 @@ const toggleQuestionInfoVisible = () => {
 
 
 const questionInfo = ref([
-    { id: 0, label: "考试单选", icon: "User", questionType: 1,questionEditorType: "WjRadioEditor" },
+    { id: 0, label: "考试单选", icon: "User", questionType: 1,questionTypeDesc: '单选题',component: "WjRadioList",questionEditorType: "WjRadioEditor" },
     { id: 1, label: "考试判断", icon: "DataBoard" },
-    { id: 2, label: "考试多选", icon: "Phone", questionType: 2,questionEditorType: "WjCheckboxEditor" },
+    { id: 2, label: "考试多选", icon: "Phone", questionType: 2,questionTypeDesc: '多选题',component: "WjCheckboxList",questionEditorType: "WjCheckboxEditor" },
     { id: 3, label: "代码题", icon: "Reading" },
     { id: 4, label: "单项填空", icon: "Check" },
     { id: 5, label: "多项填空", icon: "Finished" },
