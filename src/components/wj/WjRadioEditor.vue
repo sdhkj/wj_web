@@ -35,7 +35,7 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import { toRefs } from 'vue'
 const props = defineProps(['localdata'])
 const { localdata } = toRefs(props)
-
+localdata.value.correctAnswer = localdata.value.correctAnswer -0;
 
 import {ElMessage, ElMessageBox} from 'element-plus'
 import surveyApi from '@/api/surveyApi';

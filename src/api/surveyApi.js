@@ -109,4 +109,26 @@ export default{
         });
     },
 
+
+    // 试卷编辑
+    getQuestionById(questionId){
+        return request({
+            method: "get",
+            url: `/survey/question`,
+            params: {
+                questionId
+            }
+        });
+    },
+    // 复制试卷
+    copyQuestionById(srcQuestionId){
+        return request({
+            method: "get",
+            url: `/survey/question/copy`,
+            params: {
+                srcQuestionId
+            }
+        });
+    },
+
 }

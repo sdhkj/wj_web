@@ -14,10 +14,16 @@
 </template>
 
 <script setup>
-import { toRefs } from 'vue'
+import { toRefs,watchEffect } from 'vue'
 const props = defineProps(['localdata','disabled'])
 const { localdata ,disabled} = toRefs(props)
 localdata.value.answer = localdata.value.correctAnswer - 0
+watchEffect(() => {
+  if(localdata.value.correctAnswer){
+    localdata.value.answer = localdata.value.correctAnswer - 0
+  }
+})
+
 </script>
 
 <style lang='scss' scoped>

@@ -78,7 +78,7 @@
                         <span>考试题型</span>
                     </div>
                     <div class="list" v-if="questionInfoVisible">
-                        <div @click="openQuestionDrawer(item.questionEditorType,item.label,item.questionType,item.questionTypeDesc,item.component)" class="item"
+                        <div @click="openQuestionDrawer(item.questionEditorComponent,item.label,item.questionType,item.questionTypeDesc,item.component)" class="item"
                             v-for="(item, index) in questionInfo" :key="item.id">
                             <component :is="item.icon" class="icon">
                             </component>
@@ -132,8 +132,12 @@
                     <div class="card-opr">
                         <div><el-link type="primary">在此后插入新题</el-link></div>
                         <div>
-                            <el-button size="small" type="primary" icon="Edit">编辑</el-button>
-                            <el-button size="small" type="primary" plain icon="DocumentCopy">复制</el-button>
+                            <el-button size="small"
+                                       @click="getQuestionById(item.id,item.questionEditorComponent,item.questionTypeDesc)"
+                                       type="primary" icon="Edit">编辑</el-button>
+                            <el-button size="small"
+                                       @click="copyQuestionById(item.id,item.questionEditorComponent,item.questionTypeDesc)"
+                                       type="primary" plain icon="DocumentCopy">复制</el-button>
                             <el-button size="small" type="danger" icon="Delete">删除</el-button>
                             <el-button size="small" icon="Top">上移</el-button>
                             <el-button size="small" icon="Bottom">下移</el-button>
@@ -315,7 +319,7 @@ const questionForm = ref({
 
 
 // 打开试题编辑页面
-const openQuestionDrawer = async(questionEditorType,title, questionType,questionTypeDesc,component) => {
+const openQuestionDrawer = async(questionEditorComponent,title, questionType,questionTypeDesc,component) => {
 
   if(questionType != null && questionType != undefined){
 
@@ -326,7 +330,8 @@ const openQuestionDrawer = async(questionEditorType,title, questionType,question
       orderNum: questionList.value.length,
       score: 5,
       questionTypeDesc: questionTypeDesc,
-      component: component
+      component: component,
+      questionEditorComponent: questionEditorComponent
     }
     let res = await surveyApi.addSurveyQuestion(question)
     questionForm.value = res.data;
@@ -354,6 +359,20 @@ const closeQuestion = async() => {
   getQuestionList();
 }
 
+
+const getQuestionById = async (questionId, questionEditorComponent, title) => {
+  let res = await surveyApi.getQuestionById(questionId);
+  questionForm.value = res.data;
+
+  editorDrawer.value.visible = true;
+  editorDrawer.value.questionEditorType = questionEditorComponent;
+  editorDrawer.value.title = title;
+}
+
+const copyQuestionById = async(questionId, questionEditorComponent,title) => {
+  let res = await surveyApi.copyQuestionById(questionId);
+  getQuestionById(res.data, questionEditorComponent,title);
+}
 
 
 /*const addQuestion = () => {
@@ -456,9 +475,9 @@ const toggleQuestionInfoVisible = () => {
 
 
 const questionInfo = ref([
-    { id: 0, label: "考试单选", icon: "User", questionType: 1,questionTypeDesc: '单选题',component: "WjRadioList",questionEditorType: "WjRadioEditor" },
+    { id: 0, label: "考试单选", icon: "User", questionType: 1,questionTypeDesc: '单选题',component: "WjRadioList",questionEditorComponent: "WjRadioEditor" },
     { id: 1, label: "考试判断", icon: "DataBoard" },
-    { id: 2, label: "考试多选", icon: "Phone", questionType: 2,questionTypeDesc: '多选题',component: "WjCheckboxList",questionEditorType: "WjCheckboxEditor" },
+    { id: 2, label: "考试多选", icon: "Phone", questionType: 2,questionTypeDesc: '多选题',component: "WjCheckboxList",questionEditorComponent: "WjCheckboxEditor" },
     { id: 3, label: "代码题", icon: "Reading" },
     { id: 4, label: "单项填空", icon: "Check" },
     { id: 5, label: "多项填空", icon: "Finished" },
