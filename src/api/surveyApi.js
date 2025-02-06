@@ -131,4 +131,13 @@ export default{
         });
     },
 
+    // 完成编辑
+    finishEditSurvey(survey){
+        return request({
+            method: "put",
+            url: `/survey/finish`,
+            data: survey
+        });
+    },
+
 }

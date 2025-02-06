@@ -97,6 +97,13 @@
                     <el-input class="desc" v-model="wjForm.description" type="textarea" :rows="1" autosize
                         placeholder="添加问卷说明" @blur="updateSurvey"></el-input>
                 </div>
+
+              <div class="padding40" style="margin-top: 10px;">
+                <span style="margin-left: 10px;">时长: </span>
+                <el-input type="number" v-model="wjForm.timeLimit"  @blur="updateSurvey" style="width: 70px"/>
+                分钟
+              </div>
+
                 <div v-if="examineeList.length == 0"><el-empty description="您还没有考生信息哦" /></div>
                 <div style="border-bottom: 1px solid #e8e8e8;margin-top: 20px;"></div>
                 <div class="card" v-for="(item, index) in examineeList" :key="item.id">
@@ -441,9 +448,35 @@ const editorDrawer = ref({
 
 
 
-
-const saveWj = () => {
-    router.push("/wj/manage")
+// 完成编辑
+const saveWj = async() => {
+  // 1. 问卷数据校验
+  if (wjForm.value.title == '') {
+    ElMessage({
+      message: '问卷标题不能为空',
+      type: 'warning',
+    })
+    return;
+  }
+  if (questionList.value.length == 0) {
+    ElMessage({
+      message: '您还没有添加试题',
+      type: 'warning',
+    })
+    return;
+  }
+  // 2. 更新状态
+  let res = await surveyApi.finishEditSurvey(wjForm.value)
+  ElMessage({
+    message: '操作成功',
+    type: 'success',
+  })
+  // 3. 跳转到问卷列表页面
+  setTimeout(() => {
+    router.replace({
+      path: '/wj/list'
+    })
+  }, 1000);
 }
 
 
