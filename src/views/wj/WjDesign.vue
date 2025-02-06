@@ -19,7 +19,7 @@
                     <div class="item">
                         试卷总分：{{ totalScore }}分
                         <el-divider direction="vertical" />
-                        题目数：{{ totalQuestion }}分
+                        题目数：{{ questionList.length }}
                     </div>
                     <div class="item flex pointer">
                         <el-icon>
@@ -138,11 +138,11 @@
                             <el-button size="small"
                                        @click="copyQuestionById(item.id,item.questionEditorComponent,item.questionTypeDesc)"
                                        type="primary" plain icon="DocumentCopy">复制</el-button>
-                            <el-button size="small" type="danger" icon="Delete">删除</el-button>
-                            <el-button size="small" icon="Top">上移</el-button>
-                            <el-button size="small" icon="Bottom">下移</el-button>
-                            <el-button size="small" icon="Upload">最前</el-button>
-                            <el-button size="small" icon="Download">最后</el-button>
+                            <el-button size="small" @click="deleteQuestion(item.surveyId,item.id,item.questionType,item.orderNum, examineeList.length-1)" type="danger" icon="Delete">删除</el-button>
+                            <el-button size="small" @click="updateQuestionOrder(item.surveyId,item.id,item.questionType,item.orderNum, item.orderNum-1)" icon="Top">上移</el-button>
+                            <el-button size="small" @click="updateQuestionOrder(item.surveyId,item.id,item.questionType,item.orderNum, item.orderNum+1)" icon="Bottom">下移</el-button>
+                            <el-button size="small" @click="updateQuestionOrder(item.surveyId,item.id,item.questionType,item.orderNum, 0)" icon="Upload">最前</el-button>
+                            <el-button size="small" @click="updateQuestionOrder(item.surveyId,item.id,item.questionType,item.orderNum, questionList.length-1)" icon="Download">最后</el-button>
                         </div>
                     </div>
                 </div>
@@ -201,7 +201,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {computed, ref} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {ElMessage, ElMessageBox, ElNotification} from 'element-plus'
 
@@ -287,6 +287,31 @@ const deleteExaminee =  (surveyId,questionId,questionType,oldOrder,newOrder) => 
       })
 }
 
+// 删除问题信息
+const deleteQuestion =  (surveyId,questionId,questionType,oldOrder,newOrder) => {
+  ElMessageBox.confirm(
+      '确认删除该试题吗？',
+      '删除确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then( async () => {
+        let res = await surveyApi.deleteSurveyQuestion(questionId);
+        getQuestionList();
+        ElMessage({
+          message: '删除成功',
+          type: 'success',
+        })
+        updateQuestionOrder(surveyId,questionId,questionType,oldOrder,newOrder)
+      })
+      .catch(() => {
+
+      })
+}
+
 // 调整顺序
 const updateExamineeOrder = async (surveyId,questionId,questionType,oldOrder,newOrder) => {
   if((oldOrder==0 && newOrder==-1) || (oldOrder == examineeList.value.length-1 && newOrder == examineeList.value.length)){
@@ -294,6 +319,15 @@ const updateExamineeOrder = async (surveyId,questionId,questionType,oldOrder,new
   }
   let res = await surveyApi.updateSurveyQuestionOrder(surveyId,questionId,questionType,oldOrder,newOrder)
   getExamineeList();
+}
+
+// 调整顺序
+const updateQuestionOrder = async (surveyId,questionId,questionType,oldOrder,newOrder) => {
+  if((oldOrder==0 && newOrder==-1) || (oldOrder == questionList.value.length-1 && newOrder == questionList.value.length)){
+    return ;
+  }
+  let res = await surveyApi.updateSurveyQuestionOrder(surveyId,questionId,questionType,oldOrder,newOrder)
+  getQuestionList();
 }
 
 const scoreOptions = [
@@ -335,11 +369,11 @@ const openQuestionDrawer = async(questionEditorComponent,title, questionType,que
     }
     let res = await surveyApi.addSurveyQuestion(question)
     questionForm.value = res.data;
-    questionForm.value.correctAnswer = [];
+    // questionForm.value.correctAnswer = [];
   }
 
   editorDrawer.value.visible = true;
-  editorDrawer.value.questionEditorType = questionEditorType;
+  editorDrawer.value.questionEditorType = questionEditorComponent;
   editorDrawer.value.title = title;
   console.log(title);
 }
@@ -352,8 +386,7 @@ const saveQuestion = async() => {
 
 }
 
-const closeQuestion = async() => {
-  // await surveyApi.updateSurveyQuestion(questionForm.value)  关闭不需要保存数据
+const closeQuestion = () => {
   editorDrawer.value.visible = false;
   // 查询试题列表
   getQuestionList();
@@ -471,7 +504,16 @@ const toggleQuestionInfoVisible = () => {
     questionInfoIcon.value = questionInfoVisible.value ? 'CaretBottom' : 'CaretRight'
 }
 
-
+// 试卷总分
+const totalScore = computed(() => {
+  let score = 0;
+  if(questionList.value.length > 0){
+    questionList.value.forEach(item => {
+      score += item.score;
+    });
+  }
+  return score;
+})
 
 
 const questionInfo = ref([
@@ -506,7 +548,7 @@ const chooseQuestionType = (index) => {
     activeQuestionIndex.value = index;
 }
 
-const totalScore = ref(0)
+
 const totalQuestion = ref(0)
 
 const goback = () => {

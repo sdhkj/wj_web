@@ -1,15 +1,15 @@
 <template>
     <div>
-        <quill-editor theme="snow" :options="{ modules: { toolbar: false } }" v-model:content="localdata.questionDesc"
-            contentType="html" placeholder="标题">
+        <quill-editor theme="snow" :options="{ modules: { toolbar: false } }" v-model:content="localdata.content"
+            contentType="html" placeholder="请输入试题描述" @blur="updateSurveyQuestion">
         </quill-editor>
         <div>
-            <el-checkbox-group v-model="localdata.correctAnswer">
+            <el-checkbox-group v-model="localdata.correctAnswer" @change="updateSurveyQuestion">
                 <ul>
                     <li v-for="(answerItem, index) in localdata.answerOptions" :key="index">
                         <div class="left">
-                            <div><el-checkbox  :label="answerItem.answerDesc" size="large">&nbsp;</el-checkbox ></div>
-                            <el-input type="textarea" placeholder="请完善该选项内容" :rows="1" autosize v-model="answerItem.answerDesc" class="input"></el-input>
+                            <div><el-checkbox  :label="answerItem.id" size="large">&nbsp;</el-checkbox ></div>
+                            <el-input type="textarea" @blur="updateSurveyQuestionOption(index)" placeholder="请完善该选项内容" :rows="1" autosize v-model="answerItem.optionContent" class="input"></el-input>
                         </div>
 
                         <div class="right">
@@ -17,7 +17,7 @@
                                 <el-button type="primary" icon="Plus" circle size="small" @click="addItem(index)" ></el-button>
                                 <el-button type="danger" icon="Minus" circle size="small" @click="deleteItem(index)"></el-button>
                             </div>
-                                <el-checkbox  :label="answerItem.answerDesc" style="margin-left: 20px;"   border>正确答案</el-checkbox >
+                                <el-checkbox  :label="answerItem.id" style="margin-left: 20px;"   border>正确答案</el-checkbox >
                         </div>
                     </li>
                 </ul>
@@ -36,15 +36,47 @@ import { toRefs } from 'vue'
 const props = defineProps(['localdata'])
 const { localdata } = toRefs(props)
 
- 
-
-
-const addItem = (index) => {
-    localdata.value.answerOptions.splice(index+1,0,{
-        id: "",answerDesc: "", orderNum: 99
-    });
-    updateAnswerOptionsIndex()
+if (localdata.value.correctAnswer) {
+  localdata.value.correctAnswer = localdata.value.correctAnswer.split(",").map(item => {
+    return item - 0;
+  });
+} else {
+  localdata.value.correctAnswer = [];
 }
+
+
+
+import { ElMessage,ElMessageBox  } from 'element-plus'
+import surveyApi from '@/api/surveyApi';
+const updateSurveyQuestion = async () => {
+    localdata.value.content = localdata.value.content.replace(/<img/g, "<img style='max-width:100%;height:auto'");
+    let res = await surveyApi.updateSurveyQuestion(localdata.value)
+    ElMessage({
+      message: '更新成功',
+      type: 'success',
+    })
+    if(localdata.value.correctAnswer){
+      localdata.value.correctAnswer = localdata.value.correctAnswer.split(",").map(item => {
+        return item - 0;
+      });
+    }else{
+      localdata.value.correctAnswer = [];
+    }
+
+
+}
+
+const updateSurveyQuestionOption = async (index) => {
+  let option = localdata.value.answerOptions[index];
+  await surveyApi.updateSurveyQuestionOption(option);
+  ElMessage({
+    message: '更新成功',
+    type: 'success',
+  })
+}
+
+
+
 
 const updateAnswerOptionsIndex = () => {
     //因插入或删除元素，整体重新更新orderNum属性值
@@ -54,10 +86,55 @@ const updateAnswerOptionsIndex = () => {
     })
 }
 
+const addItem = async (index) => {
+  console.log('addItem...', index);
+  let option = localdata.value.answerOptions[index];
+  let newOption = {
+    questionId: option.questionId,
+    surveyId: option.surveyId,
+    orderNum: option.orderNum
+  }
+  await surveyApi.addSurveyQuestionOption(newOption)
+  let res = await surveyApi.getSurveyQuestionOptionList(option.questionId)
+  localdata.value.answerOptions = res.data;
+}
+
+const deleteItem = (index) => {
+  let option = localdata.value.answerOptions[index];
+  ElMessageBox.confirm(
+      '您确认删除该选项？',
+      '删除确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(async () => {
+        await surveyApi.deleteSurveyQuestionOption(option.id)
+        let res = await surveyApi.getSurveyQuestionOptionList(option.questionId)
+        localdata.value.answerOptions = res.data;
+        ElMessage({
+          message: '删除成功',
+          type: 'success',
+        })
+      })
+      .catch(() => {
+
+      })
+}
+/*
 const deleteItem = (index) => {
     localdata.value.answerOptions.splice(index,1)
     updateAnswerOptionsIndex()
 }
+const addItem = (index) => {
+  localdata.value.answerOptions.splice(index+1,0,{
+    id: "",answerDesc: "", orderNum: 99
+  });
+  updateAnswerOptionsIndex()
+}
+*/
 
 
 
@@ -109,7 +186,7 @@ const deleteItem = (index) => {
                 .button{
                     display: none;
                 }
-                
+
             }
 
         }
