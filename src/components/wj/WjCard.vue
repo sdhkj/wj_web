@@ -10,7 +10,7 @@
                         {{ localdata.statusDesc }}
                     </div>
                     <div class="info-item">答卷
-                        <span :class="{ highlight: localdata.answerCount > 0 }">{{ localdata.answerCount }}</span>
+                        <span :class="{ highlight: localdata.answerTotal > 0 }">{{ localdata.answerTotal }}</span>
                     </div>
                     <div class="info-item">{{ localdata.fcd }}</div>
                 </div>
@@ -76,13 +76,13 @@
                     </el-dropdown>
                 </div>
                 <div class="opr">
-                    <div class="opr-item-2" v-if="localdata.status == 0" @click="publishWj">
+                    <div class="opr-item-2" v-if="localdata.status == 1" @click="publishWj">
                         <el-icon color="green" size="24">
                             <VideoPlay />
                         </el-icon>
                         <span>发布</span>
                     </div>
-                    <div class="opr-item-2" v-else>
+                    <div class="opr-item-2" v-if="localdata.status == 2">
                         <el-icon color="red" size="24">
                             <VideoPause />
                         </el-icon>

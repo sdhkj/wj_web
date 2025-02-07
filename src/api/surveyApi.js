@@ -140,4 +140,13 @@ export default{
         });
     },
 
+    // 问卷列表分页查询
+    getSurveyList(param){
+        return request({
+            method: "get",
+            url: `/survey/list`,
+            params: param
+        });
+    },
+
 }
