@@ -7,7 +7,7 @@
                     <div class="info-item">ID: {{ localdata.id }}</div>
                     <div class="info-item " :class="{ highlight: localdata.status == 1 }">
                         <span :class="{ lightgray: localdata.status == 0, highlight: localdata.status == 1 }">●</span>
-                        {{ localdata.statusDesc }}
+                        {{ statusDesc }}
                     </div>
                     <div class="info-item">答卷
                         <span :class="{ highlight: localdata.answerTotal > 0 }">{{ localdata.answerTotal }}</span>
@@ -146,8 +146,8 @@ const route = useRoute();
 
 const messageDialogVisible = ref(false)
 
-const props = defineProps(['localdata'])
-const { localdata } = toRefs(props)
+const props = defineProps(['localdata','statusDesc'])
+const { localdata , statusDesc} = toRefs(props)
 
 const examLink = ref("http://localhost:8888/exam");
 const copyLink = async () => {
