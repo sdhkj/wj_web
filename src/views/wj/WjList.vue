@@ -20,26 +20,26 @@
                 </el-dropdown>
                 <el-dropdown>
                     <div class="order" style="width: 80px;">
-                        <span>状态</span><el-icon>
+                        <span>{{selectedStatus}}</span><el-icon>
                             <DCaret />
                         </el-icon>
                     </div>
 
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item>状态</el-dropdown-item>
-                            <el-dropdown-item>已发布</el-dropdown-item>
-                            <el-dropdown-item>未发布</el-dropdown-item>
+                            <el-dropdown-item @click="selectStatus(item.paramName,item.paramValue)" v-for="(item, index) in statusList " :key="item.id">{{item.paramName}}</el-dropdown-item>
+<!--                            <el-dropdown-item>已发布</el-dropdown-item>-->
+<!--                            <el-dropdown-item>未发布</el-dropdown-item>-->
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <el-input v-model="searchModel.surveysName" placeholder="请输入问卷名进行搜索..." suffix-icon="Search">
+                <el-input v-model="searchModel.title" @keydown.enter="getSurveyList" placeholder="请输入问卷名进行搜索..." suffix-icon="Search">
                 </el-input>
             </div>
         </div>
 
         <div class="list">
-            <WjCard v-for="(item, index) in wjList" :key="item.id" :localdata="item"></WjCard>
+            <WjCard v-for="(item, index) in wjList" :key="item.id" :localdata="item" :statusDesc = "getStatusDesc(item.status)"></WjCard>
         </div>
         <el-pagination v-model:current-page="searchModel.pageNo" v-model:page-size="searchModel.pageSize"
             :page-sizes="[5, 10,20]" layout="total, sizes, prev, pager, next, jumper" :total="total"
@@ -52,6 +52,37 @@
 import { ref, onBeforeMount, watchEffect } from 'vue'
 import { useRouter } from "vue-router";
 const router = useRouter();
+
+const statusList = ref([]);
+const selectedStatus = ref("");
+const statusMap = new Map();
+// const statusList = [
+//   {id:0, paramName: "状态", paramValue: null},
+//   {id:1, paramName: "编辑中", paramValue: 0},
+//   {id:2, paramName: "已就绪", paramValue: 1},
+//   {id:3, paramName: "已发布", paramValue: 2}
+// ]
+
+import baseApi from '@/api/baseApi';
+const getStatusList = async () => {
+  let res = await baseApi.getParamListByBaseName("surveyStatus")
+  statusList.value = res.data;
+  selectedStatus.value = statusList.value[0].paramName;
+  statusList.value.forEach(item => {
+    statusMap.set(item.paramValue, item.paramName)
+  });
+  console.log(statusMap);
+
+  getSurveyList();
+
+}
+
+getStatusList();
+
+const getStatusDesc = (status) => {
+  console.log(status," ----> ", statusMap.get(status+""));
+  return statusMap.get(status+"")
+}
 
 const total = ref(0)
 const wjList = ref([]);
@@ -66,7 +97,7 @@ const getSurveyList = async () => {
   wjList.value = res.data.rows;
   total.value = res.data.total;
 }
-getSurveyList();
+
 
 
 
@@ -81,6 +112,22 @@ const handleCurrentChange = (pageNo) => {
   searchModel.value.pageNo = pageNo;
   getSurveyList();
 }
+
+
+
+
+
+
+
+
+
+// 以状态为条件分页查询
+const selectStatus = (paramName,paramValue) => {
+  selectedStatus.value = paramName;
+  searchModel.value.status = paramValue;
+  getSurveyList()
+}
+
 
 if (router.currentRoute.value.query.star == 1) {
     let count = 0;
