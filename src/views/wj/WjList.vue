@@ -5,16 +5,17 @@
             <div class="search">
                 <el-dropdown>
                     <div class="order" style="width:80px;">
-                        <div>时间倒序</div><el-icon>
+                        <div>{{selectedOrder}}</div><el-icon>
                             <DCaret />
                         </el-icon>
                     </div>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item>时间倒序</el-dropdown-item>
-                            <el-dropdown-item>时间正序</el-dropdown-item>
-                            <el-dropdown-item>答卷倒序</el-dropdown-item>
-                            <el-dropdown-item>答卷正序</el-dropdown-item>
+                            <el-dropdown-item @click="selectOrder(item.paramName,item.paramValue)"
+                             v-for="(item, index) in orderList " :key="item.id">{{item.paramName}}</el-dropdown-item>
+<!--                            <el-dropdown-item>时间正序</el-dropdown-item>-->
+<!--                            <el-dropdown-item>答卷倒序</el-dropdown-item>-->
+<!--                            <el-dropdown-item>答卷正序</el-dropdown-item>-->
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
@@ -53,6 +54,24 @@ import { ref, onBeforeMount, watchEffect } from 'vue'
 import { useRouter } from "vue-router";
 const router = useRouter();
 
+import baseApi from '@/api/baseApi';
+
+const orderList = ref([]);
+const selectedOrder = ref("");
+const getOrderParamList = async () => {
+  let res = await baseApi.getParamListByBaseName("surveyOrder")
+  orderList.value = res.data;
+  selectedOrder.value = orderList.value[0].paramName;
+}
+getOrderParamList();
+
+// 以时间为条件分页查询
+const selectOrder = (paramName,paramValue) => {
+  selectedOrder.value = paramName;
+  searchModel.value.orderCondition = paramValue;
+  getSurveyList()
+}
+
 const statusList = ref([]);
 const selectedStatus = ref("");
 const statusMap = new Map();
@@ -63,7 +82,7 @@ const statusMap = new Map();
 //   {id:3, paramName: "已发布", paramValue: 2}
 // ]
 
-import baseApi from '@/api/baseApi';
+
 const getStatusList = async () => {
   let res = await baseApi.getParamListByBaseName("surveyStatus")
   statusList.value = res.data;
