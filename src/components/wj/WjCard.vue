@@ -106,7 +106,7 @@
                         </el-icon>
                         <span>文件夹</span>
                     </div>
-                    <div class="opr-item-2">
+                    <div class="opr-item-2" @click="updateSurveyStar">
                         <el-icon color="#ffaa77" size="26"   v-if="localdata.star==1">
                             <StarFilled />
                         </el-icon>
@@ -148,6 +148,21 @@ const messageDialogVisible = ref(false)
 
 const props = defineProps(['localdata','statusDesc'])
 const { localdata , statusDesc} = toRefs(props)
+
+
+import surveyApi from '@/api/surveyApi';
+const updateSurveyStar = async () => {
+  let star = 1 - localdata.value.star;
+  await surveyApi.updateSurveyStar(localdata.value.id, star)
+  localdata.value.star = star;
+  ElMessage({
+    message: '操作成功',
+    type: 'success',
+  })
+}
+
+
+
 
 const examLink = ref("http://localhost:8888/exam");
 const copyLink = async () => {

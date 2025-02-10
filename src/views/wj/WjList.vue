@@ -51,8 +51,9 @@
 
 <script setup>
 import { ref, onBeforeMount, watchEffect } from 'vue'
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 const router = useRouter();
+const route = useRoute();
 
 import baseApi from '@/api/baseApi';
 
@@ -105,9 +106,13 @@ const getStatusDesc = (status) => {
 
 const total = ref(0)
 const wjList = ref([]);
+
+// 从url中获取参数，star的值为1
+let star = route.query.star;
 const searchModel = ref({
   pageNo: 1,
-  pageSize: 5
+  pageSize: 5,
+  star: star
 })
 
 import surveyApi from "@/api/surveyApi.js";

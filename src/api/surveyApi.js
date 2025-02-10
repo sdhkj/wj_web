@@ -149,4 +149,14 @@ export default{
         });
     },
 
+
+    updateSurveyStar(surveyId,star){
+        return request({
+            method: "put",
+            url: `/survey/star`,
+            params: {
+                surveyId,star
+            }
+        });
+    },
 }
