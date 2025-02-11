@@ -159,4 +159,18 @@ export default{
             }
         });
     },
+
+    copySurvey(sourceSurveyId){
+        return request({
+            method: "post",
+            url: `/survey/copy/${sourceSurveyId}`
+        });
+    },
+
+    deleteSurveyToRecycle(surveyId){
+        return request({
+            method: "delete",
+            url: `/survey/${surveyId}`
+        });
+    },
 }

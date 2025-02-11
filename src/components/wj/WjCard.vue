@@ -161,6 +161,21 @@ const updateSurveyStar = async () => {
   })
 }
 
+const editWj = () => {
+  if(localdata.value.status == 2){
+    ElMessage({
+      message: '请先停止问卷',
+      type: 'warning',
+    })
+    return;
+  }
+  router.push({
+    path: '/wj/design',
+    query: {
+      surveyId: localdata.value.id
+    }
+  })
+}
 
 
 
@@ -173,28 +188,35 @@ const copyLink = async () => {
     })
 }
 
+// 触发自定义事件 refreshList。通过 defineEmits 子组件可以向父组件发送事件通知，实现父子组件间的通信。
+const emit = defineEmits(['refreshList'])
+
 const deleteWj = () => {
-    ElMessageBox.confirm(
-        '确认删除ID: 303030302 的问卷？',
-        '警告',
-        {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
-        }
-    )
-        .then(() => {
-            ElMessage({
-                type: 'success',
-                message: '问卷删除成功',
-            })
+  ElMessageBox.confirm(
+      `确认删除ID: ${localdata.value.id} 的问卷？`,
+      '警告',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then( async() => {
+        await surveyApi.deleteSurveyToRecycle(localdata.value.id);
+
+        ElMessage({
+          type: 'success',
+          message: '问卷删除成功',
         })
-        .catch(() => {
-            ElMessage({
-                type: 'info',
-                message: '取消删除',
-            })
+
+        emit('refreshList')
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '取消删除',
         })
+      })
 }
 
 const messageDialogTitle = ref("");
@@ -212,12 +234,28 @@ const ranking = () => {
     router.push("/exam/ranking")
 }
 
-const editWj = () => {
-    router.push("/wj/design")
-}
+// const editWj = () => {
+//     router.push("/wj/design")
+// }
 
-const copyWj = () => {
-    router.push("/wj/design")
+
+// const copyWj = () => {
+//     router.push("/wj/design")
+// }
+const copyWj = async() => {
+  let res = await surveyApi.copySurvey(localdata.value.id);
+  ElMessage({
+    message: '复制成功',
+    type: 'success',
+  })
+  setTimeout(() => {
+    router.push({
+      path: '/wj/design',
+      query: {
+        surveyId: res.data
+      }
+    })
+  }, 1000);
 }
 </script>
 

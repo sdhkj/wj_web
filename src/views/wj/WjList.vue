@@ -40,7 +40,7 @@
         </div>
 
         <div class="list">
-            <WjCard v-for="(item, index) in wjList" :key="item.id" :localdata="item" :statusDesc = "getStatusDesc(item.status)"></WjCard>
+            <WjCard @refreshList="getSurveyList" v-for="(item, index) in wjList" :key="item.id" :localdata="item" :statusDesc = "getStatusDesc(item.status)"></WjCard>
         </div>
         <el-pagination v-model:current-page="searchModel.pageNo" v-model:page-size="searchModel.pageSize"
             :page-sizes="[5, 10,20]" layout="total, sizes, prev, pager, next, jumper" :total="total"
@@ -64,7 +64,7 @@ const getOrderParamList = async () => {
   orderList.value = res.data;
   selectedOrder.value = orderList.value[0].paramName;
 }
-getOrderParamList();
+// getOrderParamList();
 
 // 以时间为条件分页查询
 const selectOrder = (paramName,paramValue) => {
@@ -93,11 +93,11 @@ const getStatusList = async () => {
   });
   console.log(statusMap);
 
-  getSurveyList();
+  // getSurveyList();
 
 }
 
-getStatusList();
+// getStatusList();
 
 const getStatusDesc = (status) => {
   console.log(status," ----> ", statusMap.get(status+""));
@@ -122,8 +122,14 @@ const getSurveyList = async () => {
   total.value = res.data.total;
 }
 
+const init = async () => {
+  await getOrderParamList();
+  await getStatusList();
 
-
+  searchModel.value.orderCondition = orderList.value[0].paramValue;
+  getSurveyList();
+}
+init();
 
 
 
