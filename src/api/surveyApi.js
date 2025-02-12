@@ -173,4 +173,18 @@ export default{
             url: `/survey/${surveyId}`
         });
     },
+
+    getRecycleList(){
+        return request({
+            method: "get",
+            url: `/survey/recycle/list`
+        });
+    },
+
+    restoreSurvey(surveyId){
+        return request({
+            method: "put",
+            url: `/survey/restore/${surveyId}`
+        });
+    },
 }

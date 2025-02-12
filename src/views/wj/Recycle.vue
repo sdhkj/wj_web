@@ -12,16 +12,16 @@
                 <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
                 <el-table-column prop="title" label="问卷名" align="center"></el-table-column>
                 <el-table-column prop="fcd" label="发布时间" align="center" width="160"></el-table-column>
-                <el-table-column prop="answerCount" label="答卷数" align="center" width="80"></el-table-column>
+                <el-table-column prop="answerTotal" label="答卷数" align="center" width="80"></el-table-column>
                 <el-table-column label="清空数据" align="center" width="100">
                     <template v-slot="scope">
-                        <el-link v-if="scope.row.answerCount > 0">清空数据</el-link>
+                        <el-link v-if="scope.row.answerTotal > 0">清空数据</el-link>
                     </template>
                 </el-table-column>
                 <el-table-column label="恢复" align="center" width="80">
 
                     <template v-slot="scope">
-                        <el-icon color="green" size="18">
+                        <el-icon color="green" size="18" @click="restoreSurvey(scope.row.id)">
                             <RefreshLeft />
                         </el-icon>
                     </template>
@@ -47,15 +47,24 @@
 import { ref } from 'vue'
 
 
-const wjList = ref([
-    { id: 200303032, title: "Java基础测试", status: 0, statusDesc: '未发布', answerCount: 0, fcd: '2046/12/08 18:30' },
-    { id: 200303039, title: "Docker培训评测", status: 0, statusDesc: '未发布', answerCount: 23, fcd: '2046/07/12 14:21', star: 1 },
-    { id: 200303027, title: "SpringBoot3+Vue3综合测试", status: 1, statusDesc: '已发布', answerCount: 0, fcd: '2046/12/26 09:25' },
-    { id: 200303052, title: "HTML第五章测试", status: 0, statusDesc: '未发布', answerCount: 0, fcd: '2046/12/08 18:30' },
-    { id: 200303034, title: "Vue3基础知识测试", status: 0, statusDesc: '未发布', answerCount: 36, fcd: '2046/07/12 14:21', star: 1 },
-    { id: 200303023, title: "八点半公司入职测试", status: 1, statusDesc: '已发布', answerCount: 0, fcd: '2046/12/26 09:25' }
-]);
+import surveyApi from '@/api/surveyApi';
+const wjList = ref([]);
 
+const getRecycleList = async() => {
+  let res = await surveyApi.getRecycleList()
+  wjList.value = res.data;
+}
+getRecycleList();
+
+import { ElMessage } from 'element-plus'
+const restoreSurvey = async (surveyId) => {
+  await surveyApi.restoreSurvey(surveyId)
+  ElMessage({
+    type: 'success',
+    message: '恢复成功',
+  })
+  getRecycleList();
+}
 
 </script>
 
