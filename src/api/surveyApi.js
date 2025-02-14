@@ -187,4 +187,33 @@ export default{
             url: `/survey/restore/${surveyId}`
         });
     },
+
+    deleteSurvey(surveyId){
+        return request({
+            method: "delete",
+            url: `/survey/physical/${surveyId}`
+        });
+    },
+
+    publishSurvey(surveyId){
+        return request({
+            method: "put",
+            url: `/survey/publish/${surveyId}`
+        });
+    },
+
+    stopSurvey(surveyId){
+        return request({
+            method: "put",
+            url: `/survey/stop/${surveyId}`
+        });
+    },
+
+    getSurveyForExam(surveyId){
+        return request({
+            method: "get",
+            url: `/survey/exam/${surveyId}`
+        });
+    },
+
 }

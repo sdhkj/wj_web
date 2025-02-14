@@ -29,7 +29,7 @@
                 <el-table-column label="彻底删除" align="center" width="100">
 
                     <template v-slot="scope">
-                        <el-icon color="red" size="18">
+                        <el-icon color="red" size="18" @click="deleteSurvey(scope.row.id,scope.row.title)">
                             <CloseBold />
                         </el-icon>
                     </template>
@@ -46,6 +46,34 @@
 <script setup>
 import { ref } from 'vue'
 
+const deleteSurvey = async(surveyId,title) => {
+  ElMessageBox.confirm(
+      `您确认删除问卷：${title}`,
+      '警告',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then( async() => {
+        await surveyApi.deleteSurvey(surveyId);
+
+        ElMessage({
+          type: 'success',
+          message: '问卷删除成功',
+        })
+
+        getRecycleList();
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '取消删除',
+        })
+      })
+}
+
 
 import surveyApi from '@/api/surveyApi';
 const wjList = ref([]);
@@ -56,7 +84,7 @@ const getRecycleList = async() => {
 }
 getRecycleList();
 
-import { ElMessage } from 'element-plus'
+import {ElMessage, ElMessageBox} from 'element-plus'
 const restoreSurvey = async (surveyId) => {
   await surveyApi.restoreSurvey(surveyId)
   ElMessage({

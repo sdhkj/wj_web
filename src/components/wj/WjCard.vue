@@ -82,7 +82,7 @@
                         </el-icon>
                         <span>发布</span>
                     </div>
-                    <div class="opr-item-2" v-if="localdata.status == 2">
+                    <div class="opr-item-2" v-if="localdata.status == 2" @click="stopWj">
                         <el-icon color="red" size="24">
                             <VideoPause />
                         </el-icon>
@@ -220,9 +220,21 @@ const deleteWj = () => {
 }
 
 const messageDialogTitle = ref("");
-const publishWj = () => {
+const publishWj = async () => {
+    let res = await surveyApi.publishSurvey(localdata.value.id);
+    localdata.value.status = res.data;
     messageDialogVisible.value = true;
     messageDialogTitle.value = "问卷发布成功啦！"
+}
+
+
+const stopWj = async () => {
+  let res = await surveyApi.stopSurvey(localdata.value.id);
+  localdata.value.status = res.data;
+  ElMessage({
+    type: 'success',
+    message: '问卷已停止',
+  })
 }
 
 const getLink = () => {
