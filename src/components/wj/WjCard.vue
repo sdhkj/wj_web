@@ -179,7 +179,8 @@ const editWj = () => {
 
 
 
-const examLink = ref("http://localhost:8888/exam");
+// const examLink = ref("http://localhost:8888/exam");
+const examLink = ref(window.location.origin + "/exam?surveyId=" + localdata.value.id);
 const copyLink = async () => {
     await navigator.clipboard.writeText(examLink.value);
     ElMessage({

@@ -1,11 +1,11 @@
 <template>
     <div class="answerOptions">
-        <el-checkbox-group v-model="localdata.correctAnswer" :disabled="disabled">
+        <el-checkbox-group v-model="localdata.answerArr" :disabled="disabled">
             <ul type="none" style="padding: 0 15px;">
                 <li v-for="(item, index) in localdata.answerOptions" :key="item.id">
                     <el-checkbox :label="item.id" size="large">
                         {{ item.optionContent }}
-                        <span class="correct" v-if="localdata.correctAnswer.includes(item.id) && disabled" style="margin-left: 20px;color: limegreen">（正确答案）</span>
+                        <span class="correct" v-if="localdata.correctAnswer && localdata.answerArr.includes(item.id) && disabled" style="margin-left: 20px;color: limegreen">（正确答案）</span>
                     </el-checkbox>
                 </li>
             </ul>
@@ -18,8 +18,18 @@ import { ref, toRefs,watchEffect } from 'vue'
 const props = defineProps(['localdata', 'disabled'])
 const { localdata ,disabled} = toRefs(props)
 
+localdata.value.answerArr = []
+
 
 watchEffect(() => {
+  if(localdata.value.correctAnswer){
+    localdata.value.answerArr = localdata.value.correctAnswer.split(",").map(item => {
+      return item - 0;
+    });
+  }
+});
+
+/*watchEffect(() => {
   if(localdata.value.correctAnswer){
     localdata.value.correctAnswer = localdata.value.correctAnswer.split(",").map(item => {
       return item - 0;
@@ -27,7 +37,7 @@ watchEffect(() => {
   }else{
     localdata.value.correctAnswer = [];
   }
-});
+});*/
 
 
 

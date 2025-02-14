@@ -5,22 +5,28 @@
                 :gap="config.gap">
                 <div class="logo"></div>
             </el-watermark>
-            <el-form :model="examForm">
+            <div v-if="!openStatus" class="title">
+               问卷不存在！
+            </div>
+            <el-form :model="examForm" v-else>
                 <div class="title">
                     {{ examForm.title }}
                 </div>
-                <div class="card" v-for="(item, index) in examForm.questionList1" :key="item.id">
-                    <div class="question">{{ item.questionDesc }}：</div>
+                <div class="card" v-for="(item, index) in examForm.examineeList" :key="item.id">
+                    <div class="question">{{ item.content }}：</div>
                     <div class="answerList">
                         <el-input style="width: 398px;height: 38px;" v-model="item.answer"></el-input>
                     </div>
                 </div>
-                <div class="card" v-for="(item, index) in examForm.questionList2" :key="item.id">
-                    <div class="question">
-                        <span>{{ index + 1 }}.</span>
-                        {{ item.questionDesc }}
-                        [ {{ item.questionTypeDesc }} ]
-                    </div>
+                <div class="card" v-for="(item, index) in examForm.questionList" :key="item.id">
+
+                  <div class="question" style="display: flex;">
+                    <span>{{ index + 1 }}.&nbsp;</span>
+                    <div v-html="item.content"></div>
+                  </div>
+                  <span style="margin-left: 55px; color:#0095ff; background-color:#e1fafa;padding: 1px 5px; border-radius: 5px">
+                        [ {{ item.questionTypeDesc }} {{ item.score }}分 ]</span>
+
                     <div class="answerList">
                         <component :is="item.component" :localdata="item"
                             style="width: 18px;padding: 0; margin-right: 10px; ">
@@ -35,8 +41,8 @@
             </div>
             <div class="footer">
                 <img src="/src/assets/logo1.png" style="background-color: #ff399b;height: 16px;border-radius: 5px;">
-                <span style="margin: 0 10px 0 3px;">问卷君</span>
-                <span style="color: #bebebe;">青青菜鸟提供技术支持</span>
+                <span style="margin: 0 10px 0 3px;">在线问卷</span>
+<!--                <span style="color: #bebebe;">青青菜鸟提供技术支持</span>-->
             </div>
 
         </div>
@@ -60,6 +66,26 @@ const ttl = ref(90 * 60);
 let ttlIntervalId = setInterval(() => {
     ttl.value -= 1;
 }, 1000);
+
+
+const openStatus = ref(true)
+import surveyApi from '@/api/surveyApi';
+const examForm = ref({})
+const getSurveyForExam = async () => {
+  let res = await surveyApi.getSurveyForExam(route.query.surveyId)
+  if(res.data){
+    examForm.value = res.data;
+    ttl.value = res.data.timeLimit * 60;
+  }else{
+    openStatus.value = false;
+  }
+
+
+
+}
+getSurveyForExam();
+
+
 
 watchEffect(() => {
     if (ttl.value <= 0) {
@@ -88,48 +114,12 @@ const submitExam = () => {
     router.push("/exam/result")
 }
 
-const examForm = ref({
-    title: "Java开发岗入职测试",
-    questionList1: [
-        {
-            id: 0, questionDesc: "您的姓名", placeholder: "姓名", questionType: 4, questionTypeDesc: '填空', orderNum: 0, prefixIcon: "User"
-        }
-    ],
-    questionList2: [
-        {
-            id: 0, questionDesc: "关于Java描述，以下错误的是？", component: "WjRadioList", questionType: 0, questionTypeDesc: '单选', orderNum: 0,
-            answerOptions: [
-                { id: 0, answerDesc: "Java语言是一种面向对象的编程语言", correctAnswer: 0, orderNum: 0 },
-                { id: 1, answerDesc: "运行效率比C语言更快", correctAnswer: 1, orderNum: 1 },
-                { id: 2, answerDesc: "支持多线程", correctAnswer: 0, orderNum: 2 },
-                { id: 3, answerDesc: "Java不依赖于平台，具备可移植性", correctAnswer: 0, orderNum: 3 },
-            ], correctAnswer: []
-        },
-        {
-            id: 1, questionDesc: "Redis有什么特点？", component: "WjCheckboxList", questionType: 1, questionTypeDesc: '多选', orderNum: 1,
-            answerOptions: [
-                { id: 0, answerDesc: "非关系型数据库", correctAnswer: 1, orderNum: 0 },
-                { id: 1, answerDesc: "存取速度贼快，因为它把数据都读取到内存当中操作", correctAnswer: 1, orderNum: 1 },
-                { id: 2, answerDesc: "提供了丰富的数据结构", correctAnswer: 1, orderNum: 2 },
-                { id: 3, answerDesc: "是MySql的良好替代品", correctAnswer: 0, orderNum: 3 },
-            ], correctAnswer: []
-        },
-        {
-            id: 2, questionDesc: "关于微服务架构描述错误的是", component: "WjRadioList", questionType: 0, questionTypeDesc: '单选', orderNum: 1,
-            answerOptions: [
-                { id: 0, answerDesc: "微服务架构的本质依然是面向服务的其本质依然是解耦展现层与业务层", correctAnswer: 1, orderNum: 0 },
-                { id: 1, answerDesc: "微服务架构中，服务是自治的，之间采用轻量级通信，去掉了ESB集中转发", correctAnswer: 1, orderNum: 1 },
-                { id: 2, answerDesc: "微服务间绝对没有依赖关系，可独立开发、部署，无需考虑服务前向兼容", correctAnswer: 1, orderNum: 2 },
-                { id: 3, answerDesc: "与面向服务架构相比，微服务划分粒度更细，通常设计遵循单一职责原则", correctAnswer: 0, orderNum: 3 },
-            ], correctAnswer: []
-        }
-    ]
-})
+
 
 
 
 const config = ref({
-    content: '问卷君',
+    content: '在线问卷',
     font: {
         fontSize: 16,
         fontWeight: 100,
@@ -172,7 +162,7 @@ const config = ref({
             padding: 30px 0 30px;
 
             .question {
-                color: 16px;
+                //color: 16px;
                 padding: 0 40px 0;
             }
 

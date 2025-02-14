@@ -32,7 +32,7 @@ export default{
     getExamineeList(surveyId){
         return request({
             method: "get",
-            url: `/survey/examinee/${surveyId}`
+            url: `/survey/question/examinee/${surveyId}`
         });
     },
 

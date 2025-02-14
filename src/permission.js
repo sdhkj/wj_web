@@ -1,6 +1,6 @@
 import router from './router'
 import storage from "@/utils/storage";
-const whitelist = ['/login','/reg']
+const whitelist = ['/login','/reg','/exam']
 
 router.beforeEach((to, from, next) => {
     let token = storage.getStorageToken();
