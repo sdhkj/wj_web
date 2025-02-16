@@ -227,4 +227,14 @@ export default{
         });
     },
 
+    getExamResult(scoreId){
+        return request({
+            method: "get",
+            url: `/survey/exam/result`,
+            params: {
+                scoreId
+            }
+        });
+    },
+
 }

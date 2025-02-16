@@ -1,7 +1,7 @@
 <template>
   <div class="logo">
     <el-image src="/src/assets/logo1.png"></el-image>
-    <span>问卷君</span>
+    <span>在线问卷</span>
   </div>
   <div class="body" :style="{ backgroundImage: 'url(' + bgUrl + ')' }">
     <div class="login">

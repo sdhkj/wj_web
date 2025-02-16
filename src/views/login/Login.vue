@@ -1,7 +1,7 @@
 <template>
     
         <div class="logo">
-            <!-- <el-image src="/src/assets/logo1.png"></el-image> -->
+             <el-image src="/src/assets/logo1.png"></el-image>
             <span>在线问卷平台</span>
         </div>
         <div class="body" :style="{ backgroundImage: 'url(' + bgUrl + ')' }">
@@ -37,9 +37,13 @@
                         </el-form-item>
                     </el-form>
                     <el-form ref="userFormRef" :model="userForm" :rules="rules" v-else>
-                        <el-form-item prop="username">
+
+                        <el-form-item prop="phone">
                             <el-input v-model="userForm.phone" placeholder="手机号码" prefix-icon="Iphone" />
                         </el-form-item>
+
+
+
                         <el-form-item prop="captcha">
                             <el-input v-model="userForm.captcha" placeholder="验证码" prefix-icon="Message">
                                 <template #append>
@@ -89,6 +93,7 @@ import { ElMessage } from 'element-plus'
 const userFormRef = ref()
 import {useUserStore} from "@/stores/user.js";
 import userApi from "@/api/userApi.js";
+import smsApi from "@/api/smsApi.js";
 
 const loading = ref(false)
 const login = async () => {
@@ -122,6 +127,64 @@ const login = async () => {
   }
 }
 
+/*const login = async () => {
+  loading.value = true;
+  try {
+    let valid = await userFormRef.value.validate(() => {});
+    if (valid) {
+      if (activeIndex.value === 1) {
+        // 验证码登录
+        let captchaRes = await smsApi.checkCaptcha(userForm.value.phone, userForm.value.captcha);
+        if (captchaRes.data === true) {
+          // 调用登录接口
+          let userStore = useUserStore();
+          let loginRes = await userStore.login(userForm.value);
+          // 调用token换取用户信息接口
+          await userStore.getUserInfo(loginRes.data);
+          // 成功提示，跳转到首页
+          ElMessage({
+            message: '登录成功',
+            type: 'success',
+          });
+          setTimeout(() => {
+            router.replace({
+              path: '/'
+            });
+          }, 1000);
+        } else {
+          ElMessage({
+            message: captchaRes.data.message,
+            type: 'error',
+          });
+        }
+      } else {
+        // 账号密码登录
+        let userStore = useUserStore();
+        let loginRes = await userStore.login(userForm.value);
+        // 调用token换取用户信息接口
+        await userStore.getUserInfo(loginRes.data);
+        // 成功提示，跳转到首页
+        ElMessage({
+          message: '登录成功',
+          type: 'success',
+        });
+        setTimeout(() => {
+          router.replace({
+            path: '/'
+          });
+        }, 1000);
+      }
+    }
+  } catch (error) {
+    ElMessage({
+      message: error.response?.data?.message || '登录失败',
+      type: 'error',
+    });
+  } finally {
+    loading.value = false;
+  }
+};*/
+
 let otherLogins = ref([
     { id: 1, desc: 'QQ登录', img: '/src/assets/images/qq0.png', img0: '/src/assets/images/qq0.png', img1: '/src/assets/images/qq1.png' },
     { id: 2, desc: '微信登录', img: '/src/assets/images/wx0.png', img0: '/src/assets/images/wx0.png', img1: '/src/assets/images/wx1.png' },
@@ -140,6 +203,14 @@ const rules = ref({
     {required: true, message: '请输入密码', trigger: 'blur'},
     {min: 6, max: 20, message: '密码长度6~20', trigger: 'blur'}
   ],
+  phone: [
+    {required: true, message: '请输入手机号码', trigger: 'blur'},
+
+  ],
+  captcha: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { min: 6, max: 6, message: '验证码长度为6位', trigger: 'blur' }
+  ]
 })
 
 const bgUrl = ref('/src/assets/images/bjf.jpg');
@@ -152,13 +223,14 @@ const changTab = (index) => {
 const getSmsCaptcha = async () => {
     let valid = await userFormRef.value.validateField("phone",()=>{})
     if(valid){
-        let res = await userApi.getCaptcha(userForm.value.phone)
+        let res = await smsApi.getCaptcha(userForm.value.phone)
         ElMessage({
             message: '验证码已发送',
             type: 'success',
         })
     }
 }
+
 
 </script>
 
@@ -172,7 +244,7 @@ const getSmsCaptcha = async () => {
     position: fixed;
     left: 80px;
     top: 50px;
-    color: #2d7ac7;
+    color: #63acdb;
     font-size: 25px;
     font-weight: bold;
     display: flex;
@@ -181,13 +253,13 @@ const getSmsCaptcha = async () => {
 
     .el-image {
         width: 40px;
-        border-radius: 20px;
-        background-color: rgba(255, 57, 155, 0.99);
-		background-image: conic-gradient(red, #ff399b, #5282b0, red); 
-        animation: star 5s linear infinite;
+        //border-radius: 20px;
+        //background-color: rgba(255, 57, 155, 0.99);
+		    //background-image: conic-gradient(red, #ff399b, #5282b0, red);
+        //animation: star 5s linear infinite;
         margin-right: 10px;
-        opacity: 0.8;
-        box-shadow: 0 0 10px white;
+        //opacity: 0.8;
+        //box-shadow: 0 0 10px white;
     }
 }
 

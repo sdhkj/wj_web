@@ -2,7 +2,8 @@
     <div class="exam">
         <div class="main">
             <div class="title">
-                {{ examResult.title }}
+              您的测试结果
+<!--                {{ examResult.title }}-->
             </div>
 
             <div style="padding: 0 40px 0;">
@@ -11,22 +12,22 @@
                         <td>
                             <div
                                 style="height: 100px;display: flex;flex-direction: column;align-items: center;justify-content: center;">
-                                <span style="font-size: 40px; color: #ff6a00;line-height: 50px; ">88</span>
+                                <span style="font-size: 40px; color: #ff6a00;line-height: 50px; ">{{scoreResult.score}}</span>
                                 <span style="color: #999999;font-weight: bolder;">得分</span>
                             </div>
                         </td>
                         <td>
                             <div
                                 style=" height: 100px;display: flex;flex-direction: column;align-items: center;justify-content: center;">
-                                <span style=" font-size: 40px; color: #ff6a00;line-height: 50px;">15</span>
+                                <span style=" font-size: 40px; color: #ff6a00;line-height: 50px;">{{scoreResult.correctNum}}</span>
                                 <span style="color: #999999;font-weight: bolder;">答对</span>
                             </div>
                         </td>
                     </tr>
 
                     <tr style="height: 40px; font-size: 16px;background-color: #f5f5f5;text-align: center;">
-                        <td>总分100</td>
-                        <td>共15题</td>
+                        <td>总分{{scoreResult.surveyScore}}</td>
+                        <td>共{{scoreResult.questionNumber}}题</td>
                     </tr>
                 </table>
             </div>
@@ -76,9 +77,9 @@
             </div>
 
             <div class="footer">
-                <img src="/src/assets/logo1.png" style="background-color: #ff399b;height: 16px;border-radius: 5px;">
-                <span style="margin: 0 10px 0 3px;">问卷君</span>
-                <span style="color: #bebebe;">青青菜鸟提供技术支持</span>
+                <img src="/src/assets/logo1.png" style="height: 16px;border-radius: 5px;">
+                <span style="margin: 0 10px 0 3px;">在线问卷</span>
+<!--                <span style="color: #bebebe;">青青菜鸟提供技术支持</span>-->
             </div>
         </div>
     </div>
@@ -92,39 +93,55 @@ const viewAnwserKey = () => {
     answerKey.value = !answerKey.value;
 }
 
-const examResult = ref({
-    title: 'XXX测试结果',
-    questionList: [
-        {
-            id: 0, content: "关于Java描述，以下错误的是？", component: "WjRadioList", questionType: 1, questionTypeDesc: '单选', orderNum: 0,
-            answerOptions: [
-                { id: 0, optionContent: "Java语言是一种面向对象的编程语言", correctAnswer: 0, orderNum: 0 },
-                { id: 1, optionContent: "运行效率比C语言更快", correctAnswer: 1, orderNum: 1 },
-                { id: 2, optionContent: "支持多线程", correctAnswer: 0, orderNum: 2 },
-                { id: 3, optionContent: "Java不依赖于平台，具备可移植性", correctAnswer: 0, orderNum: 3 },
-            ], correctAnswer: [],answerValid:1,score:10
-        },
-        {
-            id: 1, content: "Redis有什么特点？", component: "WjCheckboxList", questionType:2, questionTypeDesc: '多选', orderNum: 1,
-            
-            answerOptions: [
-                { id: 0, optionContent: "非关系型数据库", correctAnswer: 1, orderNum: 0 },
-                { id: 1, optionContent: "存取速度贼快，因为它把数据都读取到内存当中操作", correctAnswer: 1, orderNum: 1 },
-                { id: 2, optionContent: "提供了丰富的数据结构", correctAnswer: 1, orderNum: 2 },
-                { id: 3, optionContent: "是MySql的良好替代品", correctAnswer: 0, orderNum: 3 },
-            ], userAnswer: "2",correctAnswer:"0,1,2"
-        },
-        {
-            id: 2, content: "关于微服务架构描述错误的是", component: "WjRadioList", questionType: 1, questionTypeDesc: '单选', orderNum: 1,
-            answerOptions: [
-                { id: 0, optionContent: "微服务架构的本质依然是面向服务的其本质依然是解耦展现层与业务层", correctAnswer: 1, orderNum: 0 },
-                { id: 1, optionContent: "微服务架构中，服务是自治的，之间采用轻量级通信，去掉了ESB集中转发", correctAnswer: 1, orderNum: 1 },
-                { id: 2, optionContent: "微服务间绝对没有依赖关系，可独立开发、部署，无需考虑服务前向兼容", correctAnswer: 1, orderNum: 2 },
-                { id: 3, optionContent: "与面向服务架构相比，微服务划分粒度更细，通常设计遵循单一职责原则", correctAnswer: 0, orderNum: 3 },
-            ], userAnswer: "2",correctAnswer:"2",answerValid:1,score:10
-        }
-    ]
-})
+
+import { useRouter, useRoute } from 'vue-router'
+const router = useRouter();
+const route = useRoute();
+import surveyApi from '@/api/surveyApi';
+let scoreId = route.query.scoreId;
+const scoreResult = ref({})
+const getExamResult = async() => {
+  let res = await surveyApi.getExamResult(scoreId);
+  scoreResult.value = res.data;
+}
+getExamResult();
+
+
+
+
+// const examResult = ref({
+//     title: 'XXX测试结果',
+//     questionList: [
+//         {
+//             id: 0, content: "关于Java描述，以下错误的是？", component: "WjRadioList", questionType: 1, questionTypeDesc: '单选', orderNum: 0,
+//             answerOptions: [
+//                 { id: 0, optionContent: "Java语言是一种面向对象的编程语言", correctAnswer: 0, orderNum: 0 },
+//                 { id: 1, optionContent: "运行效率比C语言更快", correctAnswer: 1, orderNum: 1 },
+//                 { id: 2, optionContent: "支持多线程", correctAnswer: 0, orderNum: 2 },
+//                 { id: 3, optionContent: "Java不依赖于平台，具备可移植性", correctAnswer: 0, orderNum: 3 },
+//             ], correctAnswer: [],answerValid:1,score:10
+//         },
+//         {
+//             id: 1, content: "Redis有什么特点？", component: "WjCheckboxList", questionType:2, questionTypeDesc: '多选', orderNum: 1,
+//
+//             answerOptions: [
+//                 { id: 0, optionContent: "非关系型数据库", correctAnswer: 1, orderNum: 0 },
+//                 { id: 1, optionContent: "存取速度贼快，因为它把数据都读取到内存当中操作", correctAnswer: 1, orderNum: 1 },
+//                 { id: 2, optionContent: "提供了丰富的数据结构", correctAnswer: 1, orderNum: 2 },
+//                 { id: 3, optionContent: "是MySql的良好替代品", correctAnswer: 0, orderNum: 3 },
+//             ], userAnswer: "2",correctAnswer:"0,1,2"
+//         },
+//         {
+//             id: 2, content: "关于微服务架构描述错误的是", component: "WjRadioList", questionType: 1, questionTypeDesc: '单选', orderNum: 1,
+//             answerOptions: [
+//                 { id: 0, optionContent: "微服务架构的本质依然是面向服务的其本质依然是解耦展现层与业务层", correctAnswer: 1, orderNum: 0 },
+//                 { id: 1, optionContent: "微服务架构中，服务是自治的，之间采用轻量级通信，去掉了ESB集中转发", correctAnswer: 1, orderNum: 1 },
+//                 { id: 2, optionContent: "微服务间绝对没有依赖关系，可独立开发、部署，无需考虑服务前向兼容", correctAnswer: 1, orderNum: 2 },
+//                 { id: 3, optionContent: "与面向服务架构相比，微服务划分粒度更细，通常设计遵循单一职责原则", correctAnswer: 0, orderNum: 3 },
+//             ], userAnswer: "2",correctAnswer:"2",answerValid:1,score:10
+//         }
+//     ]
+// })
 
 
 </script>

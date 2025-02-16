@@ -4,7 +4,7 @@
             <div class="nav">
                 <div class="logo" @click="home">
                     <el-image src="/src/assets/logo1.png"></el-image>
-                    <span>问卷君</span>
+                    <span>在线问卷</span>
                 </div>
                 <div style="display: flex;align-items: center;">
                     <div style="margin-right: 20px;">
@@ -64,9 +64,10 @@
         </div>
     </div>
     <div class="footer">
-        <img src="/src/assets/logo1.png" style="background-color: #ff399b;height: 16px;border-radius: 5px;">
-        <span style="margin: 0 10px 0 3px;">问卷君</span>
-        <span style="color: #bebebe;">青青菜鸟提供技术支持</span>
+<!--        <img src="/src/assets/logo1.png" style="background-color: #ff399b;height: 16px;border-radius: 5px;">-->
+      <img src="/src/assets/logo1.png" style="height: 16px;border-radius: 5px;">
+        <span style="margin: 0 10px 0 3px;">在线问卷</span>
+        <span style="color: #bebebe;">阿里云提供计算支持</span>
     </div>
 </template>
 
@@ -142,11 +143,13 @@ const menuList = ref([
         .logo {
             display: flex;
             align-items: center;
-            color: #ff399b;
+            color: #63acdb;
             font-size: 16px;
             cursor: pointer;
             .el-image {
-                background-color: #ff399b;
+                //background-color: #ff399b;
+                //首页logo背景色
+                //background-color: #63acdb;
                 border-radius: 10px;
                 width: 32px;
                 margin-right: 10px;
