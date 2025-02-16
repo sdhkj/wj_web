@@ -15,7 +15,7 @@
                 <div class="card" v-for="(item, index) in examForm.examineeList" :key="item.id">
                     <div class="question">{{ item.content }}：</div>
                     <div class="answerList">
-                        <el-input style="width: 398px;height: 38px;" v-model="item.answer"></el-input>
+                        <el-input style="width: 398px;height: 38px;" v-model="item.userAnswer"></el-input>
                     </div>
                 </div>
                 <div class="card" v-for="(item, index) in examForm.questionList" :key="item.id">
@@ -109,9 +109,60 @@ const leftPad0 = (str) => {
     return str;
 }
 
-const submitExam = () => {
-    console.log(examForm.value);
-    router.push("/exam/result")
+// const submitExam = () => {
+//     console.log(examForm.value);
+//     router.push("/exam/result")
+// }
+import { ElMessage } from 'element-plus'
+const submitExam = async () => {
+  let valid = true;
+  let examineeAnswers = examForm.value.examineeList.map(item => {
+    if(!item.userAnswer){
+      valid = false;
+    }
+    return {
+      surveyId: item.surveyId,
+      questionId: item.id,
+      userAnswer: item.userAnswer
+    }
+  });
+  let questionAnswers = examForm.value.questionList.map(item => {
+    if(item.questionType ==2){
+      if(item.answerArr.length > 0){
+        item.answerArr.sort((a,b) => a-b)
+      }else{
+        valid = false;
+      }
+    }
+    if(item.questionType ==1){
+      if(!item.answer){
+        valid = false;
+      }
+    }
+    return {
+      surveyId: item.surveyId,
+      questionId: item.id,
+      userAnswer: item.questionType==2 ? item.answerArr.join(",") : item.answer
+    }
+  });
+
+  if(!valid){
+    ElMessage({
+      type: 'warning',
+      message: '请完成所有试题再提交！',
+    })
+    return;
+  }
+
+  let examDuration = (examForm.value.timeLimit * 60 ) - ttl.value;
+  let res = await surveyApi.submitExam(examineeAnswers.concat(questionAnswers), examForm.value.id, examDuration)
+
+  router.replace({
+    path: "/exam/result",
+    query: {
+      scoreId:res.data
+    }
+  })
 }
 
 

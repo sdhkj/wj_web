@@ -216,4 +216,15 @@ export default{
         });
     },
 
+    submitExam(userAnwserList,surveyId,examDuration){
+        return request({
+            method: "post",
+            url: `/survey/exam`,
+            data: userAnwserList,
+            params: {
+                surveyId,examDuration
+            }
+        });
+    },
+
 }
