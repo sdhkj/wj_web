@@ -56,6 +56,7 @@ export default{
     // 更新问卷问题
     updateSurveyQuestion(surveyQuestion){
         if(Array.isArray(surveyQuestion.correctAnswer)){
+            surveyQuestion.correctAnswer = surveyQuestion.correctAnswer.sort((a,b) => a-b);
             surveyQuestion.correctAnswer = surveyQuestion.correctAnswer.join(",")
         }
         return request({
@@ -233,6 +234,26 @@ export default{
             url: `/survey/exam/result`,
             params: {
                 scoreId
+            }
+        });
+    },
+
+    getExamDetail(scoreId){
+        return request({
+            method: "get",
+            url: `/survey/exam/detail`,
+            params: {
+                scoreId
+            }
+        });
+    },
+
+    getExamRanking(surveyId){
+        return request({
+            method: "get",
+            url: `/survey/exam/ranking`,
+            params: {
+                surveyId
             }
         });
     },

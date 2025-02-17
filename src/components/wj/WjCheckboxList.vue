@@ -5,7 +5,7 @@
                 <li v-for="(item, index) in localdata.answerOptions" :key="item.id">
                     <el-checkbox :label="item.id" size="large">
                         {{ item.optionContent }}
-                        <span class="correct" v-if="localdata.correctAnswer && localdata.answerArr.includes(item.id) && disabled" style="margin-left: 20px;color: limegreen">（正确答案）</span>
+                        <span class="correct" v-if="localdata.correctAnswer && localdata.correctAnswerArr.includes(item.id) && disabled" style="margin-left: 20px;color: limegreen">（正确答案）</span>
                     </el-checkbox>
                 </li>
             </ul>
@@ -19,11 +19,21 @@ const props = defineProps(['localdata', 'disabled'])
 const { localdata ,disabled} = toRefs(props)
 
 localdata.value.answerArr = []
-
+localdata.value.correctAnswerArr = []
 
 watchEffect(() => {
-  if(localdata.value.correctAnswer){
+  if(localdata.value.userAnswer){
+    localdata.value.answerArr = localdata.value.userAnswer.split(",").map(item => {
+      return item - 0;
+    });
+  }else if(localdata.value.correctAnswer){
     localdata.value.answerArr = localdata.value.correctAnswer.split(",").map(item => {
+      return item - 0;
+    });
+  }
+
+  if(localdata.value.correctAnswer){
+    localdata.value.correctAnswerArr = localdata.value.correctAnswer.split(",").map(item => {
       return item - 0;
     });
   }

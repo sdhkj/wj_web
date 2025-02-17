@@ -7,9 +7,9 @@
                     <span>在线问卷</span>
                 </div>
                 <div style="display: flex;align-items: center;">
-                    <div style="margin-right: 20px;">
+<!--                    <div style="margin-right: 20px;">
                         <el-button style="color:#0095ff">升级</el-button>
-                    </div>
+                    </div>-->
                     <div style="display: flex;align-items: center;cursor: pointer;" @click="myWj">
                         <el-icon size="18" color="#0095ff">
                             <HomeFilled />
@@ -27,7 +27,7 @@
                     <el-icon style="margin-right: 20px;" color="#999999" size="18">
                         <QuestionFilled />
                     </el-icon>
-                    <el-badge :hidden="false" :value="3" style="height: 18px; width: 20px; margin-right:20px;">
+<!--                    <el-badge :hidden="false" :value="3" style="height: 18px; width: 20px; margin-right:20px;">
                         <el-icon style=" padding: 0; margin-right: 15px;" color="#999999" size="18">
                             <Comment />
                         </el-icon>
@@ -36,7 +36,7 @@
                         <el-icon style=" padding: 0; margin-right: 15px;" color="#999999" size="18">
                             <Bell />
                         </el-icon>
-                    </el-badge>
+                    </el-badge>-->
 
 
                     <div class="userinfo">

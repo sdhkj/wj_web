@@ -19,7 +19,9 @@ const props = defineProps(['localdata','disabled'])
 const { localdata ,disabled} = toRefs(props)
 localdata.value.answer = localdata.value.correctAnswer - 0
 watchEffect(() => {
-  if(localdata.value.correctAnswer){
+  if(localdata.value.usertAnswer){
+    localdata.value.answer = localdata.value.usertAnswer - 0
+  }else if(localdata.value.correctAnswer){
     localdata.value.answer = localdata.value.correctAnswer - 0
   }
 })

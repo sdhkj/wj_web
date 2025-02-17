@@ -243,8 +243,17 @@ const getLink = () => {
     messageDialogTitle.value = "问卷发布地址"
 }
 
-const ranking = () => {
+/*const ranking = () => {
     router.push("/exam/ranking")
+}*/
+const ranking = () => {
+  let {href} = router.resolve({
+    path: "/exam/ranking",
+    query:{
+      surveyId: localdata.value.id
+    }
+  })
+  window.open(href, "_blank")
 }
 
 // const editWj = () => {

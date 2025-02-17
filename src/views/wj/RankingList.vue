@@ -16,8 +16,8 @@
                             {{ scope.$index+1 }}
                         </template>
                         </el-table-column>
-                    <el-table-column prop="name" label="姓名"   align="left" />
-                    <el-table-column prop="time" label="用时" width="150"align="center"/>
+                    <el-table-column prop="userName" label="姓名"   align="left" />
+                    <el-table-column prop="examDuration" :formatter="formatDuration" label="用时" width="150"align="center"/>
                     <el-table-column prop="score" label="得分" width="130" align="center"/>
                     <el-table-column  label="删除" align="center" width="100">
                         <template v-slot="scope">
@@ -30,7 +30,7 @@
             <div class="footer" >
                 <img src="/src/assets/logo1.png" style="height: 16px;border-radius: 5px;">
                 <span style="margin: 0 10px 0 3px;">在线问卷</span>
-                <span style="color: #bebebe;">阿里云提供计算支持</span>
+<!--                <span style="color: #bebebe;">阿里云提供计算支持</span>-->
             </div>
         </div>
     </div>
@@ -43,16 +43,22 @@ import { useRouter, useRoute } from 'vue-router'
 const router = useRouter();
 const route = useRoute();
 
-const ranking = ref({
-    title: "XXX测试排行榜",
-    rankingList: [
-        { id: 0, name: "张三疯", time: "900秒", score: 80 },
-        { id: 1, name: "李四疯", time: "1200秒", score: 80 },
-        { id: 2, name: "王麻子", time: "890秒", score: 80 },
-        { id: 3, name: "赵二狗", time: "886秒", score: 80 },
-        { id: 4, name: "蒋太华", time: "985秒", score: 80 },
-    ]
-})
+const ranking = ref({})
+let surveyId =  route.query.surveyId;
+import surveyApi from '@/api/surveyApi';
+const getExamRanking = async() => {
+  let res = await surveyApi.getExamRanking(surveyId);
+  ranking.value = res.data
+}
+getExamRanking();
+
+const formatDuration = (row,col) => {
+  let duration = 0;
+  if(row.examDuration){
+    duration = row.examDuration;
+  }
+  return duration + " 秒"
+}
 
 
 const config = ref({

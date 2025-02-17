@@ -43,13 +43,13 @@
             </div>
 
             <div v-if="answerKey">
-                <div style="padding: 5px 40px;" v-for="(item, index) in examResult.examineeList" :key="item.id">
+                <div style="padding: 5px 40px;" v-for="(item, index) in examDetail.examineeList" :key="item.id">
                     <div class="question" style="font-size: 16px; ">
                         <span style="font-weight: bolder">{{ item.content }}：</span>
                          {{ item.userAnswer }} 
                     </div>
                 </div>
-                <div class="card" v-for="(item, index) in examResult.questionList" :key="item.id">
+                <div class="card" v-for="(item, index) in examDetail.questionList" :key="item.id">
                     <div class="question">
                         <span style="margin-right: 5px;">{{ index + 1 }}.</span>
                         <div v-html="item.content"></div>
@@ -109,40 +109,12 @@ getExamResult();
 
 
 
-// const examResult = ref({
-//     title: 'XXX测试结果',
-//     questionList: [
-//         {
-//             id: 0, content: "关于Java描述，以下错误的是？", component: "WjRadioList", questionType: 1, questionTypeDesc: '单选', orderNum: 0,
-//             answerOptions: [
-//                 { id: 0, optionContent: "Java语言是一种面向对象的编程语言", correctAnswer: 0, orderNum: 0 },
-//                 { id: 1, optionContent: "运行效率比C语言更快", correctAnswer: 1, orderNum: 1 },
-//                 { id: 2, optionContent: "支持多线程", correctAnswer: 0, orderNum: 2 },
-//                 { id: 3, optionContent: "Java不依赖于平台，具备可移植性", correctAnswer: 0, orderNum: 3 },
-//             ], correctAnswer: [],answerValid:1,score:10
-//         },
-//         {
-//             id: 1, content: "Redis有什么特点？", component: "WjCheckboxList", questionType:2, questionTypeDesc: '多选', orderNum: 1,
-//
-//             answerOptions: [
-//                 { id: 0, optionContent: "非关系型数据库", correctAnswer: 1, orderNum: 0 },
-//                 { id: 1, optionContent: "存取速度贼快，因为它把数据都读取到内存当中操作", correctAnswer: 1, orderNum: 1 },
-//                 { id: 2, optionContent: "提供了丰富的数据结构", correctAnswer: 1, orderNum: 2 },
-//                 { id: 3, optionContent: "是MySql的良好替代品", correctAnswer: 0, orderNum: 3 },
-//             ], userAnswer: "2",correctAnswer:"0,1,2"
-//         },
-//         {
-//             id: 2, content: "关于微服务架构描述错误的是", component: "WjRadioList", questionType: 1, questionTypeDesc: '单选', orderNum: 1,
-//             answerOptions: [
-//                 { id: 0, optionContent: "微服务架构的本质依然是面向服务的其本质依然是解耦展现层与业务层", correctAnswer: 1, orderNum: 0 },
-//                 { id: 1, optionContent: "微服务架构中，服务是自治的，之间采用轻量级通信，去掉了ESB集中转发", correctAnswer: 1, orderNum: 1 },
-//                 { id: 2, optionContent: "微服务间绝对没有依赖关系，可独立开发、部署，无需考虑服务前向兼容", correctAnswer: 1, orderNum: 2 },
-//                 { id: 3, optionContent: "与面向服务架构相比，微服务划分粒度更细，通常设计遵循单一职责原则", correctAnswer: 0, orderNum: 3 },
-//             ], userAnswer: "2",correctAnswer:"2",answerValid:1,score:10
-//         }
-//     ]
-// })
-
+const examDetail = ref({})
+const getExamDetail = async() => {
+  let res = await surveyApi.getExamDetail(scoreId);
+  examDetail.value = res.data;
+}
+getExamDetail();
 
 </script>
 
@@ -191,7 +163,23 @@ getExamResult();
                 margin: 10px 0;
                 color: #595959;
                 padding: 0 40px 0;
+              .answer-desc{
+                background-color: #f7f7f7;
+                font-size: 15px;
+                color: #01ad56;
+                margin: 8px 0 0 ;
+                height: 30px;
+                line-height: 30px;
+                border-radius: 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 6px 0 3px;
 
+                .el-icon{
+                  margin-right: 5px;
+                }
+              }
             }
 
         }

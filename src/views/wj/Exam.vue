@@ -42,7 +42,7 @@
             <div class="footer">
                 <img src="/src/assets/logo1.png" style="height: 16px;border-radius: 5px;">
                 <span style="margin: 0 10px 0 3px;">在线问卷</span>
-                <span style="color: #bebebe;">阿里云提供计算支持</span>
+                <span style="color: #bebebe;"> 阿里云提供计算支持</span>
             </div>
 
         </div>
@@ -129,7 +129,7 @@ const submitExam = async () => {
   let questionAnswers = examForm.value.questionList.map(item => {
     if(item.questionType ==2){
       if(item.answerArr.length > 0){
-        item.answerArr.sort((a,b) => a-b)
+        item.answerArr = item.answerArr.sort((a,b) => a-b)
       }else{
         valid = false;
       }
